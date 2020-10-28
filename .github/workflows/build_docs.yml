@@ -1,0 +1,72 @@
+name: Build Docs
+
+on: 
+  push:
+    branches: 
+      - master
+
+jobs:
+  build:
+#    runs-on: windows-latest
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Set up Java
+      uses: actions/setup-java@v1
+      with:
+        java-version: 1.8
+
+# Version stuff
+
+    - uses: eskatos/gradle-command-action@v1
+      with:
+        arguments: forge:printVersion -q
+        build-root-directory: .forgedev
+        wrapper-directory: .forgedev
+        wrapper-cache-enabled: true
+        dependencies-cache-enabled: true
+
+    - name: Gradle Get version
+      id: version
+      uses: notiz-dev/github-action-json-property@release
+      with: 
+        path: '.forgedev/forge_version.json'
+        prop_path: 'version'
+
+# Sources
+
+    - name: Load Cache
+      id: cache
+      uses: actions/cache@v2
+      with:
+        path: java
+        key: ${{ steps.version.outputs.prop }}
+
+    - name: Gradle Make sources
+      uses: eskatos/gradle-command-action@v1
+#      if: steps.cache.outputs.cache-hit != 'true'
+      with:
+        arguments: setup
+        build-root-directory: .forgedev
+        wrapper-directory: .forgedev
+
+    - name: Copy source files
+#      if: steps.cache.outputs.cache-hit != 'true'
+      run: cp -R ./.forgedev/projects/forge/src/main/java ./java
+      
+    - run: ls -l
+
+# Build the sources
+
+    - name: Build the doc
+      uses: mattnotmitt/doxygen-action@v1
+
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs/output

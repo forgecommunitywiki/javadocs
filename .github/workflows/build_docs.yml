@@ -25,6 +25,14 @@ jobs:
       working-directory: .forgedev
       run: git apply ../forge_print_version.patch
 
+    - name: Gradle Setup
+      uses: eskatos/gradle-command-action@v1
+      with:
+        arguments: setup -q
+        build-root-directory: .forgedev
+        wrapper-directory: .forgedev
+        wrapper-cache-enabled: true
+        dependencies-cache-enabled: true
 
     - name: Gradle Get version
       uses: eskatos/gradle-command-action@v1

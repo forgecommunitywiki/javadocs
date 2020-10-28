@@ -22,7 +22,8 @@ jobs:
 
 # Version stuff
 
-    - uses: eskatos/gradle-command-action@v1
+    - name: Gradle Get version
+      uses: eskatos/gradle-command-action@v1
       with:
         arguments: forge:printVersion -q
         build-root-directory: .forgedev
@@ -30,7 +31,7 @@ jobs:
         wrapper-cache-enabled: true
         dependencies-cache-enabled: true
 
-    - name: Gradle Get version
+    - name: Extract Get version
       id: version
       uses: notiz-dev/github-action-json-property@release
       with: 
@@ -43,21 +44,21 @@ jobs:
       id: cache
       uses: actions/cache@v2
       with:
-        path: java
-        key: ${{ steps.version.outputs.prop }}
+        path: ./java
+        key: ${{ steps.version.outputs.prop }}-sources
 
     - name: Gradle Make sources
       uses: eskatos/gradle-command-action@v1
-#      if: steps.cache.outputs.cache-hit != 'true'
+      if: steps.cache.outputs.cache-hit != 'true'
       with:
         arguments: setup
         build-root-directory: .forgedev
         wrapper-directory: .forgedev
 
     - name: Copy source files
-#      if: steps.cache.outputs.cache-hit != 'true'
+      if: steps.cache.outputs.cache-hit != 'true'
       run: cp -R ./.forgedev/projects/forge/src/main/java ./java
-      
+
     - run: ls -l
 
 # Build the sources
@@ -69,4 +70,4 @@ jobs:
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./docs/output
+        publish_dir: ./out/html

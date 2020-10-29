@@ -1,0 +1,32 @@
+buildscript {
+    repositories {
+        maven { url = 'https://files.minecraftforge.net/maven' }
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+    }
+}
+apply plugin: 'net.minecraftforge.gradle'
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+
+minecraft {
+    mappings channel: "${mappings_channel}", version: "${mappings_version}"
+}
+
+dependencies {
+    minecraft "net.minecraftforge:forge:${forge_version}"
+}
+
+project.afterEvaluate {
+    task copySources(type: Sync) {
+        Dependency dep = project.configurations.minecraft.getDependencies().getAt(0)
+        from(((com.amadornes.artifactural.gradle.Gradle410RepositoryAdapter)
+                project.repositories.find {
+                    it.name.startsWith("BUNDELED_")
+                }).getArtifact(net.minecraftforge.gradle.common.util.Artifact.from(dep.group, dep.name, dep.version, "sources", null)))
+        into "$buildDir/forge_src"
+        rename { "forge_${forge_version}_mapped_${mappings_channel}_${mappings_version}-sources.jar" }
+    }
+}

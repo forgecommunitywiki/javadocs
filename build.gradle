@@ -1,0 +1,63 @@
+plugins { id "org.ysb33r.doxygen" version "0.6" }
+
+repositories {
+    maven {
+        name = "MinecraftForge maven"
+        url = "https://files.minecraftforge.net/maven/"
+    }
+}
+
+task generateSources(type: GradleBuild, group: 'build') {
+    description "Generate and retrieve the Forge/MC sources JAR."
+    inputs.property "forge_version", forge_version
+    inputs.property "mappings_channel", mappings_channel
+    inputs.property "mappings_version", mappings_version
+    outputs.dir("$buildDir/forge_src")
+            .withPropertyName("forge_sources")
+
+    buildFile 'forge.gradle'
+    tasks = ['copySources']
+    startParameter.projectProperties << project.gradle.startParameter.projectProperties
+}
+
+task unpackSources(type: Sync, dependsOn: generateSources, group: 'build') {
+    description "Unpacks the source files from the generated Forge/MC sources JAR."
+
+    inputs.dir("$buildDir/forge_src")
+            .withPropertyName("forge_sources")
+    outputs.dir("src/java")
+            .withPropertyName("sources_dir")
+
+    from zipTree("$buildDir/forge_src/forge_${forge_version}_mapped_${mappings_channel}_${mappings_version}-sources.jar")
+    into "src/java"
+    exclude "META-INF/"
+    doLast {
+        fileTree("src/java").forEach({ f ->
+            f.text = (f.text =~ "(?:/\\*(?:[^*]|(?:\\*+[^*/]))*\\*+/)|(?://.*)").replaceAll('')
+        })
+    }
+}
+
+doxygen {
+    mustRunAfter unpackSources
+    description "Generates the documentation using Doxygen"
+
+    source "src/java"
+    source "src/docs"
+    outputDir "out"
+
+    project_name ""
+    project_number "${forge_version}, ${mappings_version} (${mappings_channel} channel)"
+
+    template "Doxyfile"
+    executables {
+        doxygen version: '1.8.20'
+    }
+}
+
+task sourcedDoxygen(dependsOn: [unpackSources, doxygen], group: 'documentation') {
+    mustRunAfter doxygen
+    description "Generates the source files and the documentation"
+}
+
+build.dependsOn('generateSources')

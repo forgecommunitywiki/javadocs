@@ -1,0 +1,11 @@
+/*!
+@class net.minecraft.advancements.Advancement
+@brief A test class.
+
+*/
+
+/*!
+@fn public AdvancementRewards getRewards()
+
+@return the AdvancementRewards for this advancement
+*/

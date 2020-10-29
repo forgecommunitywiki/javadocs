@@ -21,18 +21,18 @@ jobs:
 
 # Version info
 
-      # - name: Grant execute permission for gradlew
-      #   run: chmod +x gradlew
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
 
-    - name: Gradle Get version
-      uses: eskatos/gradle-command-action@v1
-      with:
-        arguments: getVersion -q
-        wrapper-cache-enabled: true
-        dependencies-cache-enabled: true
+      # - name: Gradle Get version
+      #   uses: eskatos/gradle-command-action@v1
+      #   with:
+      #     arguments: getVersion -q
+      #     wrapper-cache-enabled: true
+      #     dependencies-cache-enabled: true
 
-      # - name: Retrieve versions from ForgeDev
-      #   run: ./gradlew getVersion
+      - name: Retrieve versions from ForgeDev
+        run: ./gradlew getVersion -q
 
       - name: Extract Forge version
         id: forge_version

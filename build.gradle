@@ -23,17 +23,16 @@ task generateSources(type: GradleBuild, group: 'build') {
 task unpackSources(type: Sync, dependsOn: generateSources, group: 'build') {
     description "Unpacks the source files from the generated Forge/MC sources JAR."
 
-    inputs.dir("$buildDir/forge_src")
-            .withPropertyName("forge_sources")
-    outputs.dir("src/java")
-            .withPropertyName("sources_dir")
+    inputs.dir(".forgedev/projects/forge/src/main/java").withPropertyName("mc_sources")
+    inputs.dir(".forgedev/src/main/java").withPropertyName("forge_sources")
+    outputs.dir(".java").withPropertyName("merged_sources")
 
-    from zipTree("$buildDir/forge_src/forge_${forge_version}_mapped_${mappings_channel}_${mappings_version}-sources.jar")
-    into "src/java"
-    exclude "META-INF/"
+    from ".forgedev/projects/forge/src/main/java"
+    from ".forgedev/src/main/java"
+    into ".java"
     doLast {
-        fileTree("src/java").forEach({ f ->
-            f.text = (f.text =~ "(?:/\\*(?:[^*]|(?:\\*+[^*/]))*\\*+/)|(?://.*)").replaceAll('')
+        fileTree(".java").forEach({ f ->
+            f.text = (f.text =~ "/\\*[\\s\\S]*?\\*/").replaceAll('')
         })
     }
 }
@@ -42,7 +41,11 @@ doxygen {
     mustRunAfter unpackSources
     description "Generates the documentation using Doxygen"
 
-    source "src/java"
+    inputs.dir(".java").withPropertyName("merged_sources")
+    inputs.dir("src/docs").withPropertyName("docs")
+    outputs.dir("out").withPropertyName("output")
+
+    source ".java"
     source "src/docs"
     outputDir "out"
 

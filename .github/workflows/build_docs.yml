@@ -22,7 +22,7 @@ jobs:
         java-version: 1.8
 
 # Version stuff
-    - name: pllay forge patch
+    - name: Applay forge patch
       working-directory: .forgedev
       run: git apply ../forge_print_version.patch
 
@@ -44,7 +44,7 @@ jobs:
         wrapper-cache-enabled: true
         dependencies-cache-enabled: true
 
-    - name: Extract Get version
+    - name: Extract Mc Version
       id: version
       uses: notiz-dev/github-action-json-property@release
       with: 

@@ -99,6 +99,12 @@ jobs:
           working-directory: './'
           doxyfile-path: './Doxyfile'
 
+      - name: copy file
+        uses: canastro/copy-file-action@master
+        with:
+          source: "src/web/version.js"
+          target: "out/html/version.js"
+
       # - name: Generate and copy sources using Gradle
       #   uses: eskatos/gradle-command-action@v1
       #   with:

@@ -20,13 +20,25 @@ dependencies {
 }
 
 project.afterEvaluate {
-    task copySources(type: Sync) {
-        Dependency dep = project.configurations.minecraft.getDependencies().getAt(0)
-        from(((com.amadornes.artifactural.gradle.Gradle410RepositoryAdapter)
-                project.repositories.find {
-                    it.name.startsWith("BUNDELED_")
-                }).getArtifact(net.minecraftforge.gradle.common.util.Artifact.from(dep.group, dep.name, dep.version, "sources", null)))
-        into "$buildDir/forge_src"
-        rename { "forge_${forge_version}_mapped_${mappings_channel}_${mappings_version}-sources.jar" }
-    }
+    if (!project.tasks.findByName('writeVersion'))
+        task writeVersion() {
+            inputs.property("mc_version", project.MC_VERSION)
+            inputs.property("forge_version", project(':forge').version)
+            inputs.property("mapping_channel", project.MC_VERSION)
+            inputs.property("mapping_version", project.MAPPING_VERSION)
+            def output = file("${realBuildDir}/forge_version.json")
+            outputs.file(output)
+            def json = [
+                    mc_version     : project.MC_VERSION,
+                    forge_version  : project(':forge').version,
+                    mapping_channel: project.MAPPING_CHANNEL,
+                    mapping_version: project.MAPPING_VERSION,
+                    mc_main_version: project.MC_VERSION.substring(0, project.MC_VERSION.lastIndexOf('.'))
+            ]
+            if (Files.notExists(output.toPath())) {
+                Files.createDirectories(output.getParentFile().toPath())
+                Files.createFile(output.toPath())
+            }
+            output.text = new groovy.json.JsonBuilder(json).toPrettyString()
+        }
 }

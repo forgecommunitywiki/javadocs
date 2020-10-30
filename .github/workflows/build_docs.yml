@@ -32,7 +32,7 @@ jobs:
       #     dependencies-cache-enabled: true
 
       - name: Retrieve versions from ForgeDev
-        run: ./gradlew getVersion -q
+        run: ./gradlew retrieveVersion -q
 
       - name: Extract Forge version
         id: forge_version
@@ -55,6 +55,13 @@ jobs:
           path: './gradle.properties'
           property: 'mappings_version'
 
+      - name: Extract mc version
+        id: mc_main_version
+        uses: notiz-dev/github-action-json-property@release
+        with:
+          path: 'build/forge_version.json'
+          prop_path: 'mc_main_version'
+
 # Sources extract
 
       - name: Load Cache
@@ -62,7 +69,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ./java
-          key: ${{ steps.version.outputs.prop }}-sources
+          key: ${{ steps.forge_version.outputs.prop }}-sources
 
       # - name: Generate and copy sources using Gradle
       #   if: steps.cache.outputs.cache-hit != 'true'
@@ -78,15 +85,26 @@ jobs:
 
 # Doxygen the docs
 
+      - name: Make folder
+        run: mkdir -p ./out/html/${{ steps.mc_main_version.outputs.prop }}
+
       - name: Build documentation using Doxygen
         uses: mattnotmitt/doxygen-action@v1.2.0
         env:
-          FORGE_VERSION: ${{ steps.forge_version.outputs.value }}
-          MAPPINGS_VERSION: ${{ steps.mappings_version.outputs.value }}
-          MAPPINGS_CHANNEL: ${{ steps.mappings_channel.outputs.value }}
+          FORGE_VERSION: ${{ steps.forge_version.outputs.prop }}
+          MAPPING_VERSION: ${{ steps.mapping_version.outputs.prop }}
+          MAPPING_CHANNEL: ${{ steps.mapping_channel.outputs.prop }}
+          MC_MAIN_VERSION: ${{ steps.mc_main_version.outputs.prop }}
         with:
           working-directory: './'
           doxyfile-path: './Doxyfile'
+
+      # - name: Generate and copy sources using Gradle
+      #   uses: eskatos/gradle-command-action@v1
+      #   with:
+      #     arguments: doxygen
+      #     wrapper-cache-enabled: true
+      #     dependencies-cache-enabled: true
 
       - name: Deploy to GitHub pages
         uses: peaceiris/actions-gh-pages@v3

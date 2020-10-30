@@ -7,13 +7,71 @@ repositories {
     }
 }
 
-task generateSources(type: GradleBuild, group: 'build') {
-    description "Generate and retrieve the Forge/MC sources JAR."
-    inputs.property "forge_version", forge_version
-    inputs.property "mappings_channel", mappings_channel
-    inputs.property "mappings_version", mappings_version
-    outputs.dir("$buildDir/forge_src")
-            .withPropertyName("forge_sources")
+ext {
+    mc_version = "unknown"
+    mc_main_version = "unknown"
+    forge_version = "unknown-0.0.0"
+    mapping_channel = "unknown"
+    mapping_version = "19700101-unknown"
+}
+
+import groovy.json.JsonSlurper
+
+final File devGradle = file('.forgedev/build.gradle')
+final File versionAppendage = file('forge.gradle')
+final File versionJson = file("$buildDir/forge_version.json")
+
+task getVersion(group: 'setup') {
+    description "Reads the Minecraft, Forge, and mapping version from the build JSON"
+    doLast {
+
+        def parsedJson = new JsonSlurper().parseText(versionJson.text)
+        project.mc_version = parsedJson.mc_version
+        project.forge_version = parsedJson.forge_version
+        project.mapping_channel = parsedJson.mapping_channel
+        project.mapping_version = parsedJson.mapping_version
+        project.mc_main_version = mc_version.substring(0, mc_version.lastIndexOf('.'))
+        project.version = "${project.forge_version}, ${project.mapping_version} (${project.mapping_channel} channel)"
+
+        println "MC: ${mc_version} (${mc_main_version}), Forge: ${forge_version}, Mapping: ${mapping_version} on channel ${mapping_channel}"
+    }
+}
+
+task retrieveVersion(type: GradleBuild, group: 'setup') {
+    finalizedBy getVersion
+    description "Retrieves the Minecraft, Forge, and mappings versions from the ForgeDev submodule"
+    String originalGradle
+    doFirst {
+        String versionAppend = versionAppendage.text
+        originalGradle = devGradle.text
+        devGradle.text = originalGradle + versionAppend
+    }
+
+    inputs.dir(fileTree('.forgedev').exclude(".gradle"))
+    inputs.file(versionAppendage)
+    outputs.file(versionJson)
+
+    buildFile devGradle
+    tasks = ['writeVersion']
+    startParameter.projectProperties << project.gradle.startParameter.projectProperties
+    startParameter.projectProperties.put "realBuildDir", buildDir.getPath()
+
+    doLast {
+        devGradle.text = originalGradle
+    }
+}
+
+task setupForge(type: GradleBuild, dependsOn: getVersion, group: 'setup') {
+    finalizedBy retrieveVersion
+    description "Setup the ForgeDev submodule workspace with the MC/Forge sources."
+
+    inputs.property "forge_version", project.forge_version
+    inputs.property "mapping_channel", project.mapping_channel
+    inputs.property "mapping_version", project.mapping_version
+
+    outputs.upToDateWhen { project.version != null }
+    outputs.dir(".forgedev/projects/forge/src/main/java").withPropertyName("mc_sources")
+    outputs.dir(".forgedev/src/main/java").withPropertyName("forge_sources")
 
     buildFile 'forge.gradle'
     tasks = ['copySources']
@@ -38,19 +96,26 @@ task unpackSources(type: Sync, dependsOn: generateSources, group: 'build') {
 }
 
 doxygen {
-    mustRunAfter unpackSources
+    dependsOn getVersion
+    mustRunAfter copySources
     description "Generates the documentation using Doxygen"
 
     inputs.dir(".java").withPropertyName("merged_sources")
     inputs.dir("src/docs").withPropertyName("docs")
-    outputs.dir("out").withPropertyName("output")
+    outputs.dir("out/html/").withPropertyName("output")
 
     source ".java"
     source "src/docs"
     outputDir "out"
 
+    //html_output "html/${project.mc_main_version}"
+
+    doFirst {
+        project.file("out/html/${project.mc_main_version}").mkdirs()
+        html_output "html/${project.mc_main_version}"
+    }
+
     project_name ""
-    project_number "${forge_version}, ${mappings_version} (${mappings_channel} channel)"
 
     template "Doxyfile"
     executables {

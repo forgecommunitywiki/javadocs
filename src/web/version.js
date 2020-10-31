@@ -9,9 +9,6 @@ window.onload = () =>{
 
 }
 
-
-
-
 function on_switch(e) {
 
     var selected = e.srcElement.value

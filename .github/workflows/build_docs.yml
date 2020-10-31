@@ -71,7 +71,7 @@ jobs:
         id: cache
         uses: actions/cache@v2
         with:
-          path: ./java
+          path: ./.java
           key: ${{ steps.forge_version.outputs.prop }}-sources
 
       # - name: Generate and copy sources using Gradle

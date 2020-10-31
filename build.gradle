@@ -1,12 +1,5 @@
 plugins { id "org.ysb33r.doxygen" version "0.6" }
 
-repositories {
-    maven {
-        name = "MinecraftForge maven"
-        url = "https://files.minecraftforge.net/maven/"
-    }
-}
-
 ext {
     mc_version = "unknown"
     mc_main_version = "unknown"
@@ -24,7 +17,10 @@ final File versionJson = file("$buildDir/forge_version.json")
 task getVersion(group: 'setup') {
     description "Reads the Minecraft, Forge, and mapping version from the build JSON"
     doLast {
-
+        if (!versionJson.exists()) {
+            println "Version JSON not found"
+            return
+        }
         def parsedJson = new JsonSlurper().parseText(versionJson.text)
         project.mc_version = parsedJson.mc_version
         project.forge_version = parsedJson.forge_version
@@ -61,24 +57,24 @@ task retrieveVersion(type: GradleBuild, group: 'setup') {
     }
 }
 
-task setupForge(type: GradleBuild, dependsOn: getVersion, group: 'setup') {
-    finalizedBy retrieveVersion
+task setupForge(type: GradleBuild, group: 'setup') {
+    shouldRunAfter getVersion
     description "Setup the ForgeDev submodule workspace with the MC/Forge sources."
 
-    inputs.property "forge_version", project.forge_version
-    inputs.property "mapping_channel", project.mapping_channel
-    inputs.property "mapping_version", project.mapping_version
-
-    outputs.upToDateWhen { project.version != null }
+    inputs.file versionJson
     outputs.dir(".forgedev/projects/forge/src/main/java").withPropertyName("mc_sources")
     outputs.dir(".forgedev/src/main/java").withPropertyName("forge_sources")
 
     buildFile devGradle
     tasks = ['setup']
     startParameter.projectProperties << project.gradle.startParameter.projectProperties
+    startParameter.projectProperties.put "realBuildDir", buildDir.getPath()
+    doLast {
+        retrieveVersion.execute()
+    }
 }
 
-task copySources(type: Sync, dependsOn: setupForge, group: 'setup') {
+task copySources(type: Sync, dependsOn: [getVersion, setupForge], group: 'setup') {
     description "Copies the source files from the ForgeDev submodule to the main workspace."
 
     inputs.dir(".forgedev/projects/forge/src/main/java").withPropertyName("mc_sources")
@@ -107,8 +103,6 @@ doxygen {
     source ".java"
     source "src/docs"
     outputDir "out"
-
-    //html_output "html/${project.mc_main_version}"
 
     doFirst {
         project.file("out/html/${project.mc_main_version}").mkdirs()

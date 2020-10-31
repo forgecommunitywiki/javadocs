@@ -1,4 +1,0 @@
-- ✔ Apply sci patches
-- ✔ Cange output dir to versiond folder
-- ✔ Use the gradle task in GH actions for doxygen
-- add the version scritching js to the website

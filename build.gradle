@@ -73,13 +73,13 @@ task setupForge(type: GradleBuild, dependsOn: getVersion, group: 'setup') {
     outputs.dir(".forgedev/projects/forge/src/main/java").withPropertyName("mc_sources")
     outputs.dir(".forgedev/src/main/java").withPropertyName("forge_sources")
 
-    buildFile 'forge.gradle'
-    tasks = ['copySources']
+    buildFile devGradle
+    tasks = ['setup']
     startParameter.projectProperties << project.gradle.startParameter.projectProperties
 }
 
-task unpackSources(type: Sync, dependsOn: generateSources, group: 'build') {
-    description "Unpacks the source files from the generated Forge/MC sources JAR."
+task copySources(type: Sync, dependsOn: setupForge, group: 'setup') {
+    description "Copies the source files from the ForgeDev submodule to the main workspace."
 
     inputs.dir(".forgedev/projects/forge/src/main/java").withPropertyName("mc_sources")
     inputs.dir(".forgedev/src/main/java").withPropertyName("forge_sources")
@@ -123,9 +123,9 @@ doxygen {
     }
 }
 
-task sourcedDoxygen(dependsOn: [unpackSources, doxygen], group: 'documentation') {
+task sourcedDoxygen(dependsOn: [copySources, doxygen], group: 'documentation') {
     mustRunAfter doxygen
     description "Generates the source files and the documentation"
 }
 
-build.dependsOn('generateSources')
+build.dependsOn('copySources')

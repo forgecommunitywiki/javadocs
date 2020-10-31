@@ -1,5 +1,5 @@
-src/java/**
-!src/java/_README.txt
+.java/**
+!.java/_README.txt
 .gradle
 .idea
 build

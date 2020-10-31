@@ -1,4 +1,4 @@
-name: build_documentation
+name: Build Documentation
 on:
   push:
     branches:
@@ -13,6 +13,9 @@ jobs:
 
       - name: Checkout repo
         uses: actions/checkout@v2
+        with:
+          submodules: recursive
+          fetch-depth: 0
 
       - name: Set up JDK 8
         uses: actions/setup-java@v1
@@ -36,24 +39,24 @@ jobs:
 
       - name: Extract Forge version
         id: forge_version
-        uses: christian-draeger/read-properties@1.0.1
+        uses: notiz-dev/github-action-json-property@release
         with:
-          path: './gradle.properties'
-          property: 'forge_version'
+          path: 'build/forge_version.json'
+          prop_path: 'forge_version'
 
-      - name: Read mappings channel
-        id: mappings_channel
-        uses: christian-draeger/read-properties@1.0.1
+      - name: Extract mapping channel
+        id: mapping_channel
+        uses: notiz-dev/github-action-json-property@release
         with:
-          path: './gradle.properties'
-          property: 'mappings_channel'
+          path: 'build/forge_version.json'
+          prop_path: 'mapping_channel'
 
-      - name: Read mappings version
-        id: mappings_version
-        uses: christian-draeger/read-properties@1.0.1
+      - name: Extract mapping version
+        id: mapping_version
+        uses: notiz-dev/github-action-json-property@release
         with:
-          path: './gradle.properties'
-          property: 'mappings_version'
+          path: 'build/forge_version.json'
+          prop_path: 'mapping_version'
 
       - name: Extract mc version
         id: mc_main_version

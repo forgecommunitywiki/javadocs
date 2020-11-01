@@ -1,0 +1,125 @@
+plugins { id "org.ysb33r.doxygen" version "0.6" }
+
+ext {
+    mc_version = "unknown"
+    mc_main_version = "unknown"
+    forge_version = "unknown-0.0.0"
+    mapping_channel = "unknown"
+    mapping_version = "19700101-unknown"
+}
+
+import groovy.json.JsonSlurper
+
+final File devGradle = file('.forgedev/build.gradle')
+final File versionAppendage = file('forge.gradle')
+final File versionJson = file("$buildDir/forge_version.json")
+
+task getVersion(group: 'setup') {
+    description "Reads the Minecraft, Forge, and mapping version from the build JSON"
+    doLast {
+        if (!versionJson.exists()) {
+            println "Version JSON not found"
+            return
+        }
+        def parsedJson = new JsonSlurper().parseText(versionJson.text)
+        project.mc_version = parsedJson.mc_version
+        project.forge_version = parsedJson.forge_version
+        project.mapping_channel = parsedJson.mapping_channel
+        project.mapping_version = parsedJson.mapping_version
+        project.mc_main_version = mc_version.substring(0, mc_version.lastIndexOf('.'))
+        project.version = "${project.forge_version}, ${project.mapping_version} (${project.mapping_channel} channel)"
+
+        println "MC: ${mc_version} (${mc_main_version}), Forge: ${forge_version}, Mapping: ${mapping_version} on channel ${mapping_channel}"
+    }
+}
+
+task retrieveVersion(type: GradleBuild, group: 'setup') {
+    finalizedBy getVersion
+    description "Retrieves the Minecraft, Forge, and mappings versions from the ForgeDev submodule"
+    String originalGradle
+    doFirst {
+        String versionAppend = versionAppendage.text
+        originalGradle = devGradle.text
+        devGradle.text = originalGradle + versionAppend
+    }
+
+    inputs.dir(fileTree('.forgedev').exclude(".gradle"))
+    inputs.file(versionAppendage)
+    outputs.file(versionJson)
+
+    buildFile devGradle
+    tasks = ['writeVersion']
+    startParameter.projectProperties << project.gradle.startParameter.projectProperties
+    startParameter.projectProperties.put "realBuildDir", buildDir.getPath()
+
+    doLast {
+        devGradle.text = originalGradle
+    }
+}
+
+task setupForge(type: GradleBuild, group: 'setup') {
+    shouldRunAfter getVersion
+    description "Setup the ForgeDev submodule workspace with the MC/Forge sources."
+
+    inputs.file versionJson
+    outputs.dir(".forgedev/projects/forge/src/main/java").withPropertyName("mc_sources")
+    outputs.dir(".forgedev/src/main/java").withPropertyName("forge_sources")
+
+    buildFile devGradle
+    tasks = ['setup']
+    startParameter.projectProperties << project.gradle.startParameter.projectProperties
+    startParameter.projectProperties.put "realBuildDir", buildDir.getPath()
+    doLast {
+        retrieveVersion.execute()
+    }
+}
+
+task copySources(type: Sync, dependsOn: [getVersion, setupForge], group: 'setup') {
+    description "Copies the source files from the ForgeDev submodule to the main workspace."
+
+    inputs.dir(".forgedev/projects/forge/src/main/java").withPropertyName("mc_sources")
+    inputs.dir(".forgedev/src/main/java").withPropertyName("forge_sources")
+    outputs.dir(".java").withPropertyName("merged_sources")
+
+    from ".forgedev/projects/forge/src/main/java"
+    from ".forgedev/src/main/java"
+    into ".java"
+    doLast {
+        fileTree(".java").forEach({ f ->
+            f.text = (f.text =~ "/\\*[\\s\\S]*?\\*/").replaceAll('')
+        })
+    }
+}
+
+doxygen {
+    dependsOn getVersion
+    mustRunAfter copySources
+    description "Generates the documentation using Doxygen"
+
+    inputs.dir(".java").withPropertyName("merged_sources")
+    inputs.dir("src/docs").withPropertyName("docs")
+    outputs.dir("out/html/").withPropertyName("output")
+
+    source ".java"
+    source "src/docs"
+    outputDir "out"
+
+    doFirst {
+        project.file("out/html/${project.mc_main_version}").mkdirs()
+        html_output "html/${project.mc_main_version}"
+    }
+
+    project_name ""
+
+    template "Doxyfile"
+    executables {
+        doxygen version: '1.8.20'
+    }
+}
+
+task sourcedDoxygen(dependsOn: [copySources, doxygen], group: 'documentation') {
+    mustRunAfter doxygen
+    description "Generates the source files and the documentation"
+}
+
+build.dependsOn('copySources')

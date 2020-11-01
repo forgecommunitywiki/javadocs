@@ -1,1 +1,6 @@
-source/jar/
+.java/**
+!.java/_README.txt
+.gradle
+.idea
+build
+out

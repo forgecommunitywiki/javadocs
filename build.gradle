@@ -97,7 +97,7 @@ doxygen {
     description "Generates the documentation using Doxygen"
 
     inputs.dir(".java").withPropertyName("merged_sources")
-    inputs.dir("src/docs").withPropertyName("docs")
+    inputs.dir("src").withPropertyName("src")
     outputs.dir("out/html/").withPropertyName("output")
 
     source ".java"

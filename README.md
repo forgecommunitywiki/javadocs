@@ -1,5 +1,5 @@
 # Forge Community Wiki: JavaDocs
-![Build Documentation](https://github.com/forgecommunitywiki/javadocs/workflows/Build%20Documentation/badge.svg)
+![Build Documentation](https://github.com/forgecommunitywiki/javadocs/workflows/Build%20Documentation/badge.svg) ![Website](https://img.shields.io/website?url=https%3A%2F%2Fforgecommunitywiki.github.io%2Fjavadocs%2F1.16)
 
 > The javadocs companion to the wiki.
 

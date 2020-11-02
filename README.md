@@ -1,6 +1,9 @@
 # Forge Community Wiki: JavaDocs
-> The javadocs companion to the wiki.
 ![Build Documentation](https://github.com/forgecommunitywiki/javadocs/workflows/Build%20Documentation/badge.svg)
+
+> The javadocs companion to the wiki.
+
+The generated docs are available here: [website](https://forgecommunitywiki.github.io/javadocs/)
 
 This is a community driven documentation for the Minecraft Forge Modding API.
 The documentation is generated from text submitted by the community.
@@ -16,4 +19,7 @@ Contributing to the project is easy, just follow these steps:
 
 ### Accepting PRs
 Your PRs will be reviewed by one of the members on the triage team. This might be scary sounding if you ever subbmited a PR to the main Forge repo. But rest asured we accept PRs way more easily.
-Your PR
+We consider a single spelling correction a valid PR, or a single function in a class that has many. Any PR is wellcomed.
+
+### Contributors
+Be the first to get your name here!

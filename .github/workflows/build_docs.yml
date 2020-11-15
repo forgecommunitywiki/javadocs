@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      SHA8: ${GITHUB_SHA::8}
 
     steps:
 # Setup
@@ -66,6 +68,10 @@ jobs:
           path: 'build/forge_version.json'
           prop_path: 'mc_main_version'
 
+      - name: Get short SHA
+        id: slug
+        run: echo "::set-output name=sha8::$(echo ${GITHUB_SHA} | cut -c1-8)"
+
 # Sources extract
 
       - name: Load Cache
@@ -107,10 +113,8 @@ jobs:
 
       - name: Deploy to GitHub pages
         uses: peaceiris/actions-gh-pages@v3
-        env:
-          SHA8: ${GITHUB_SHA::8}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./out/html/${{ steps.mc_main_version.outputs.prop }}
           destination_dir: ./${{ steps.mc_main_version.outputs.prop }}
-          full_commit_message: Docs[${{env.GITHUB_REF}} ${{env.SHA8}}] ${{ github.event.head_commit.message }}
+          full_commit_message: Docs[${{env.GITHUB_REF}} ${{ steps.slug.outputs.sha8 }}] ${{ github.event.head_commit.message }}

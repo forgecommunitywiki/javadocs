@@ -111,4 +111,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./out/html/${{ steps.mc_main_version.outputs.prop }}
           destination_dir: ./${{ steps.mc_main_version.outputs.prop }}
-          full_commit_message: Deploy ${{ steps.mc_main_version.outputs.prop }} (${{ steps.forge_version.outputs.prop }}) to GitHub Pages
+          full_commit_message: Docs[${GITHUB_REF} ${GITHUB_SHA::8}] ${{ github.event.head_commit.message }}

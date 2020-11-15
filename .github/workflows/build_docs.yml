@@ -109,4 +109,6 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./out/html
+          publish_dir: ./out/html/${{ steps.mc_main_version.outputs.prop }}
+          destination_dir: ./${{ steps.mc_main_version.outputs.prop }}
+          full_commit_message: Deploy ${{ steps.mc_main_version.outputs.prop }} (${{ steps.forge_version.outputs.prop }}) to GitHub Pages

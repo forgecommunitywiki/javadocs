@@ -72,6 +72,11 @@ jobs:
         id: slug
         run: echo "::set-output name=sha8::$(echo ${GITHUB_SHA} | cut -c1-8)"
 
+      - name: Extract branch name
+        id: extract_branch
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+
 # Sources extract
 
       - name: Load Cache
@@ -117,4 +122,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./out/html/${{ steps.mc_main_version.outputs.prop }}
           destination_dir: ./${{ steps.mc_main_version.outputs.prop }}
-          full_commit_message: Docs[${{env.GITHUB_REF}} ${{ steps.slug.outputs.sha8 }}] ${{ github.event.head_commit.message }}
+          full_commit_message: Docs[${{ steps.extract_branch.outputs.branch }} ${{ steps.slug.outputs.sha8 }}] ${{ github.event.head_commit.message }}

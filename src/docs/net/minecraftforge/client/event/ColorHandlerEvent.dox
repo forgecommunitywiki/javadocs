@@ -1,0 +1,61 @@
+/**
+ * @class net.minecraftforge.client.event.ColorHandlerEvent
+ * Fired for registering block and item color handlers at the appropriate time.
+ * See the two subclasses for registering blocks or items color handlers.
+ *
+ * @see ColorHandlerEvent.Block
+ * @see ColorHandlerEvent.Item
+ */
+
+/**
+ * @class net.minecraftforge.client.event.ColorHandlerEvent.Block
+ * Fired for registering block colors handlers.
+ *
+ * This event is not \link Cancelable cancellable\endlink, and does not \link HasResult have a result\endlink.
+ *
+ * This event is fired on the \link FMLJavaModLoadingContext#getModEventBus() mod-specific event bus\endlink,
+ * only on the \link LogicalSide#CLIENT logical client\endlink.
+ *
+ * @see ForgeHooksClient#onBlockColorsInit(BlockColors)
+ */
+
+/**
+ * @fn public BlockColors ColorHandlerEvent.Block::getBlockColors()
+ * Returns an instance of \ref BlockColors, for registering block color providers (\ref IBlockColor).
+ *
+ * @return an instance of the block colors
+ * @see BlockColors#register(IBlockColor, net.minecraft.block.Block...)
+ */
+
+/**
+ * @class net.minecraftforge.client.event.ColorHandlerEvent.Item
+ * Fired for registering item colors handlers.
+ *
+ * The block colors should only be used for referencing or delegating item colors to their respective block colors.
+ * Use \ref ColorHandlerEvent.Block for registering your block color handlers.
+ *
+ * This event is not \link Cancelable cancellable\endlink, and does not \link HasResult have a result\endlink.
+ *
+ * This event is fired on the \link FMLJavaModLoadingContext#getModEventBus() mod-specific event bus\endlink,
+ * only on the \link LogicalSide#CLIENT logical client\endlink.
+ *
+ * @see ForgeHooksClient#onItemColorsInit(ItemColors, BlockColors)
+ */
+
+/**
+ * @fn public ItemColors ColorHandlerEvent.Item::getItemColors()
+ * Returns an instance of \ref ItemColors, for registering item color providers (\ref IItemColor).
+ *
+ * @return an instance of the item colors
+ * @see ItemColors#register(IItemColor, IItemProvider...)
+ */
+
+/**
+ * @fn public BlockColors ColorHandlerEvent.Item::getBlockColors()
+ * Returns an instance of \ref BlockColors, for reference and/or delegation.
+ *
+ * This should only be used for reference or delegation to respective block colors.
+ * Use \ref ColorHandlerEvent.Block for registering your block color handlers.
+ *
+ * @return an instance of the block colors
+ */

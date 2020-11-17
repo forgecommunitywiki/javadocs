@@ -1,5 +1,11 @@
 var NAVTREEINDEX0 =
 {
+"":[1,0,0],
+"":[1,0,0,0,1],
+"":[1,0,0,0,1,0],
+"":[1,0,0,0],
+"":[1,0,0,0,2],
+"":[1,0,0,0,0],
 "annotated.html":[1,0],
 "classes.html":[1,1],
 "classnet_1_1minecraft_1_1advancements_1_1_advancement.html":[1,0,0,0,0,0],
@@ -11,11 +17,5 @@ var NAVTREEINDEX0 =
 "hierarchy.html":[1,2],
 "index.html":[],
 "md_src_docs__test.html":[0],
-"pages.html":[],
-"":[1,0,0,0,1],
-"":[1,0,0,0,0],
-"":[1,0,0],
-"":[1,0,0,0,1,0],
-"":[1,0,0,0],
-"":[1,0,0,0,2]
+"pages.html":[]
 };

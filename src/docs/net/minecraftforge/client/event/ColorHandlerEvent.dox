@@ -20,7 +20,7 @@
  */
 
 /**
- * @fn public BlockColors ColorHandlerEvent.Block::getBlockColors()
+ * @fn public BlockColors Block::getBlockColors()
  * Returns an instance of \ref BlockColors, for registering block color providers (\ref IBlockColor).
  *
  * @return an instance of the block colors
@@ -43,7 +43,7 @@
  */
 
 /**
- * @fn public ItemColors ColorHandlerEvent.Item::getItemColors()
+ * @fn public ItemColors Item::getItemColors()
  * Returns an instance of \ref ItemColors, for registering item color providers (\ref IItemColor).
  *
  * @return an instance of the item colors
@@ -51,7 +51,7 @@
  */
 
 /**
- * @fn public BlockColors ColorHandlerEvent.Item::getBlockColors()
+ * @fn public BlockColors Item::getBlockColors()
  * Returns an instance of \ref BlockColors, for reference and/or delegation.
  *
  * This should only be used for reference or delegation to respective block colors.

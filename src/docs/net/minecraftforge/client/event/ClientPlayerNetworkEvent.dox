@@ -77,16 +77,16 @@
  * @see ClientHooks#firePlayerRespawn(PlayerController, ClientPlayerEntity, ClientPlayerEntity, NetworkManager)
  */
 
-/**
- * @fn public ClientPlayerEntity ClientPlayerNetworkEvent.RespawnEvent::getOldPlayer()
- * Returns the old \ref ClientPlayerEntity instance that existed before the respawn.
- *
- * @return The previous player instance
- */
+    /**
+     * @fn public ClientPlayerEntity RespawnEvent::getOldPlayer()
+     * Returns the old \ref ClientPlayerEntity instance that existed before the respawn.
+     *
+     * @return The previous player instance
+     */
 
-/**
- * @fn public ClientPlayerEntity ClientPlayerNetworkEvent.RespawnEvent::getNewPlayer()
- * Returns the new \ref ClientPlayerEntity instance that will replace the old instance, after the respawn event.
- *
- * @return The newly created player instance
- */
+    /**
+     * @fn public ClientPlayerEntity RespawnEvent::getNewPlayer()
+     * Returns the new \ref ClientPlayerEntity instance that will replace the old instance, after the respawn event.
+     *
+     * @return The newly created player instance
+     */

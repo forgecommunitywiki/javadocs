@@ -1,0 +1,31 @@
+/**
+ * @class net.minecraftforge.client.event.GuiOpenEvent
+ * Fired before any \ref Screen will be opened, for changing it or preventing it from being opened.
+ *
+ * This event is \link Cancelable cancelable\endlink, and does not \link HasResult have a result\endlink.
+ * If this event is cancelled, then the \ref Screen shall be prevented from opening and the previous screen shall remain.
+ *
+ * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+ * only on the \link LogicalSide#CLIENT logical client\endlink.
+ *
+ * @see Minecraft#displayGuiScreen(Screen)
+ * @author jk-5
+ */
+
+/**
+ * @fn public Screen GuiOpenEvent::getGui()
+ *
+ * Returns the screen that will be opened, after the event fires and is not cancelled.
+ * If this value is \c null, then the previous screen will be closed and no new screen shall be opened.
+ *
+ * @return The screen that will be opened, may be \c null
+ */
+
+/**
+ * @fn public void GuiOpenEvent::setGui(Screen gui)
+ *
+ * Sets the new \ref Screen to be opened, if the event is not cancelled.
+ * If \p gui is \c null, then the previous screen will be closed and no new screen shall be opened.
+ *
+ * @param gui The new screen to open instead, can be \c null
+ */

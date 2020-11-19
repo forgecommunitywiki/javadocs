@@ -1,0 +1,41 @@
+/**
+ * @class net.minecraftforge.client.event.ModelBakeEvent
+ *
+ * Fired when the ModelManager is notified of the resource manager reloading.
+ * Called after model registry is setup, but before it's passed to \ref BlockModelShapes for block model baking.
+ * This can be used to modify and wrap models before they are sent for model baking.
+ *
+ * This event is not \link Cancelable cancellable\endlink, and does not \link HasResult have a result\endlink.
+ *
+ * These events are fired on the \link FMLJavaModLoadingContext#getModEventBus() mod-specific event bus\endlink,
+ * only on the \link LogicalSide#CLIENT logical client\endlink.
+ *
+ * @see ForgeHooksClient#onModelBake(ModelManager, Map, ModelLoader)
+ */
+
+/**
+ * @fn public ModelManager ModelBakeEvent::getModelManager()
+ *
+ * Returns the \ref ModelManager.
+ *
+ * @return The model manager
+ */
+
+/**
+ * @fn public Map<ResourceLocation, IBakedModel> ModelBakeEvent::getModelRegistry()
+ *
+ * Returns a modifiable map of \link ResourceLocation ResourceLocations\endlink and their corresponding models.
+ *
+ * The \c ResourceLocations in the map can also be instances of \ref ModelResourceLocation,
+ * for e.g. models for block states and their variants.
+ *
+ * @return The modifiable registry map of models and their model names
+ */
+
+/**
+ * @fn public ModelLoader ModelBakeEvent::getModelLoader()
+ *
+ * Returns the currently active \ref ModelLoader.
+ *
+ * @return The model loader
+ */

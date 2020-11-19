@@ -1,0 +1,16 @@
+/**
+ * @class net.minecraftforge.client.event.ParticleFactoryRegisterEvent
+ *
+ * Fired for registering particle factories at the appropriate time.
+ *
+ * \link ParticleType ParticleTypes\endlink must be registered during the
+ * \link RegistryEvent.Register appropriate registry events\endlink; this event is only
+ * for the \link IParticleFactory IParticleFactories\endlink. </p>
+ *
+ * This event is not \link Cancelable cancellable\endlink, and does not \link HasResult have a result\endlink.
+ *
+ * This event is fired on the \link FMLJavaModLoadingContext#getModEventBus() mod-specific event bus\endlink,
+ * only on the \link LogicalSide#CLIENT logical client\endlink.
+ *
+ * @see ParticleManager#registerFactory(ParticleType, IParticleFactory)
+ */

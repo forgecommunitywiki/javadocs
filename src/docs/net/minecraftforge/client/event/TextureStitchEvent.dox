@@ -1,0 +1,53 @@
+/**
+ * @class net.minecraftforge.client.event.TextureStitchEvent
+ *
+ * Fired when the texture map is stitched together.
+ * See the two subclasses to listen for before and after stitching.
+ *
+ * @see TextureStitchEvent.Pre
+ * @see TextureStitchEvent.Post
+ * @see AtlasTexture
+ */
+
+/**
+ * @fn public AtlasTexture TextureStitchEvent::getMap()
+ *
+ * Returns the \link AtlasTexture texture atlas\endlink of this event.
+ *
+ * @return The texture atlas
+ */
+
+/**
+ * @class net.minecraftforge.client.event.TextureStitchEvent.Pre
+ *
+ * Fired <b>before</b> the \ref AtlasTexture is stitched together.
+ * This can be used to add custom sprites to be stitched into the atlas.
+ *
+ * This event is not \link Cancelable cancellable\endlink, and does not \link HasResult have a result\endlink.
+ *
+ * This event is fired on the \link FMLJavaModLoadingContext#getModEventBus() mod-specific event bus\endlink,
+ * only on the \link LogicalSide#CLIENT logical client\endlink.
+ *
+ * @see ForgeHooksClient#onTextureStitchedPre(AtlasTexture, Set)
+ */
+
+    /**
+     * @fn public boolean Pre::addSprite(ResourceLocation sprite)
+     *
+     * Adds a sprite to be stitched into the texture atlas.
+     *
+     * @param sprite the location of the sprite
+     */
+
+/**
+ * @class net.minecraftforge.client.event.TextureStitchEvent.Post
+ *
+ * Fired <b>after</b> the \ref AtlasTexture is stitched together.
+ *
+ * This event is not \link Cancelable cancellable\endlink, and does not \link HasResult have a result\endlink.
+ *
+ * This event is fired on the \link FMLJavaModLoadingContext#getModEventBus() mod-specific event bus\endlink,
+ * only on the \link LogicalSide#CLIENT logical client\endlink.
+ *
+ * @see ForgeHooksClient#onTextureStitchedPost(AtlasTexture)
+ */

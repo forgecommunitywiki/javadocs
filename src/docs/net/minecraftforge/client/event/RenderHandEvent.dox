@@ -1,0 +1,100 @@
+/**
+ * @class net.minecraftforge.client.event.RenderHandEvent
+ *
+ * Fired before a hand is rendered in the first person view.
+ *
+ * This event is \link Cancelable cancellable\endlink, and does not \link HasResult have a result\endlink.
+ * If this event is cancelled, then the hand will not be rendered.
+ *
+ * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+ * only on the \link LogicalSide#CLIENT logical client\endlink.
+ *
+ * @see ForgeHooksClient#renderSpecificFirstPersonHand(Hand, MatrixStack, IRenderTypeBuffer, int, float, float, float, float, ItemStack)
+ */
+
+/**
+ * @fn public Hand RenderHandEvent::getHand()
+ *
+ * Returns the hand being rendered during this event.
+ *
+ * @return the hand being rendered
+ */
+
+/**
+ * @fn public MatrixStack RenderHandEvent::getMatrixStack()
+ *
+ * Returns the \ref MatrixStack used for transformations, rotations, and scaling in rendering.
+ *
+ * @return the matrix stack used for rendering
+ */
+
+/**
+ * @fn public IRenderTypeBuffer RenderHandEvent::getBuffers()
+ *
+ * Returns the \ref IRenderTypeBuffer currently being used for rendering.
+ *
+ * @return the rendering buffers
+ */
+
+/**
+ * @fn public int RenderHandEvent::getLight()
+ *
+ * Returns an integer packed with the sky and block light.
+ * This is used in rendering to determine the color of the light level of the block, according to the light texture.
+ *
+ * @return The amount of packed light for rendering
+ * @see LightTexture
+ * @see LightTexture#packLight(int, int)
+ * @see LightTexture#getLightBlock(int)
+ * @see LightTexture#getLightSky(int)
+ */
+
+/**
+ * @fn public float RenderHandEvent::getPartialTicks()
+ *
+ * Returns the partial amount of ticks between the last and next render tick.
+ * This will be in the range of <tt>0.0-1.0</tt>.
+ *
+ * @return The amount of partial ticks
+ */
+
+/**
+ * @fn public float RenderHandEvent::getInterpolatedPitch()
+ *
+ * Returns the interpolated rotation pitch of the player entity.
+ * It is the linear interpolation between the previous and current rotation pitch of the player, based on the
+ * \link #getPartialTicks() partial ticks\endlink.
+ *
+ * @return The interpolated pitch of the player entity
+ */
+
+/**
+ * @fn public float RenderHandEvent::getSwingProgress()
+ *
+ * Returns the progress of the swing animation of the hand.
+ * This is affected by certain effects, such as the Mining Fatigue or Haste effects.
+ *
+ * This \c float value is in the range of <tt>0.0-1.0</tt>
+ *
+ * @return The swing progress of the hand being rendered
+ * @see LivingEntity#getSwingProgress(float)
+ */
+
+/**
+ * @fn public float RenderHandEvent::getEquipProgress()
+ *
+ * Returns the interpolated progress of the equip animation of the hand.
+ * It is the linear interpolation between the previous and current equip animation of the hand, based on the
+ * \link #getPartialTicks() partial ticks\endlink.
+ * This \c float value is in the range of <tt>0.0-1.0</tt>
+ *
+ * @return The progress of the equip animation
+ */
+
+/**
+ * @fn public ItemStack RenderHandEvent::getItemStack()
+ *
+ * Returns the \ref ItemStack currently held in this \link #getHand() hand\endlink.
+ *
+ * @return The item stack held in the hand
+ */

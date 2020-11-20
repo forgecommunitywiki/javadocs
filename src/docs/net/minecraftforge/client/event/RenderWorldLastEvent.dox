@@ -1,0 +1,64 @@
+/**
+ * @class net.minecraftforge.client.event.RenderWorldLastEvent
+ *
+ * Fired after world rendering is finished.
+ * This can be used for custom rendering outside of e.g. a tile entity or entity renderer.
+ *
+ * Rendering in this event occurs after all world rendering (after the render buffers are flushed);
+ * interactions with translucent rendering and other special effects may have unavoidable side-effects.
+ *
+ * An instance of \ref IRenderTypeBuffer can be retrieved from \ref RenderTypeBuffers#getBufferSource().
+ * The caller is responsible for flushing the buffers after use, through \ref RenderTypeBuffers.Impl#finish().
+ * <em>Not flushing the buffers will cause rendering issues.</em>
+ *
+ * This event is not \link Cancelable cancellable\endlink, and does not \link HasResult have a result\endlink.
+ *
+ * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+ * only on the \link LogicalSide#CLIENT logical client\endlink.
+ *
+ * @see ForgeHooksClient#dispatchRenderLast(WorldRenderer, MatrixStack, float, Matrix4f, long)
+ * @see GameRenderer
+ * @see WorldRenderer
+ */
+
+/**
+ * @fn public WorldRenderer RenderWorldLastEvent::getContext()
+ *
+ * Returns the \ref WorldRenderer.
+ *
+ * @return The world renderer
+ */
+
+/**
+ * @fn public MatrixStack RenderWorldLastEvent::getMatrixStack()
+ *
+ * Returns the \ref MatrixStack used for transformations, rotations, and scaling in rendering.
+ *
+ * @return The matrix stack used for rendering
+ */
+
+/**
+ * @fn public float RenderWorldLastEvent::getPartialTicks()
+ *
+ * Returns the partial amount of ticks between the last and next render tick.
+ * This will be in the range of <tt>0.0-1.0</tt>.
+ *
+ * @return The amount of partial ticks
+ */
+
+/**
+ * @fn public Matrix4f RenderWorldLastEvent::getProjectionMatrix()
+ *
+ * Returns the projection matrix.
+ *
+ * @return The projection matrix
+ */
+
+/**
+ * @fn public long RenderWorldLastEvent::getFinishTimeNano()
+ *
+ * Returns the time when rendering started, expressed in nanoseconds.
+ *
+ * @return The time when rendering started, in nanoseconds
+ * @see Util#nanoTime()
+ */

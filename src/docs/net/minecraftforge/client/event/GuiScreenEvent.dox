@@ -123,6 +123,7 @@
      * @fn public float DrawScreenEvent::getRenderPartialTicks()
      *
      * Returns the partial amount of ticks between the last and next render tick.
+     * This will be in the range of <tt>0.0-1.0</tt>.
      *
      * @return The amount of partial render ticks
      */

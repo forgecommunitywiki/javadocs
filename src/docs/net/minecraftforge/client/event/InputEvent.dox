@@ -1,0 +1,344 @@
+/**
+ * @class net.minecraftforge.client.event.InputEvent
+ *
+ * Fired when an input is detected from the user's input devices.
+ * See the various subclasses to listen for specific devices and inputs. 
+ *
+ * @see InputEvent.RawMouseEvent
+ * @see InputEvent.MouseInputEvent
+ * @see InputEvent.MouseScrollEvent
+ * @see InputEvent.KeyInputEvent
+ * @see InputEvent.ClickInputEvent
+ */
+
+/**
+ * @class net.minecraftforge.client.event.InputEvent.RawMouseEvent
+ *
+ * Fired when a mouse button is clicked, <b>before</b> being processed by vanilla code.
+ *
+ * This event is \link Cancelable cancellable\endlink, and does not \link HasResult have a result\endlink.
+ * If the event is cancelled, then the mouse event will not be processed by vanilla code (e.g. keybinds and screens).
+ *
+ * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+ * only on the \link LogicalSide#CLIENT logical client\endlink. 
+ *
+ * @see ForgeHooksClient#onRawMouseClicked(int, int, int)
+ * @see <a href="https://www.glfw.org/docs/latest/input_guide.html#input_mouse_button" target="_top">the online GLFW documentation</a>
+ */
+
+    /**
+     * @fn public int RawMouseEvent::getButton()
+     *
+     * Returns the GLFW key code of the clicked mouse button.
+     *
+     * @return The key code of the clicked mouse button
+     *
+     * @see GLFW#GLFW_MOUSE_BUTTON_LEFT
+     * @see GLFW#GLFW_MOUSE_BUTTON_RIGHT
+     * @see GLFW#GLFW_MOUSE_BUTTON_MIDDLE
+     * @see GLFW key constants starting with 'GLFW_MOUSE_BUTTON_'
+     * @see <a href="http://www.glfw.org/docs/latest/input.html#input_mouse_button" target="_top">the online GLFW documentation</a>
+     */
+
+    /**
+     * @fn public int RawMouseEvent::getAction()
+     *
+     * Returns the action constant of the mouse button which triggered this event.
+     *
+     * @return The mouse button's action constant
+     *
+     * @see GLFW#GLFW_PRESS
+     * @see GLFW#GLFW_RELEASE
+     */
+
+    /**
+     * @fn public int RawMouseEvent::getMods()
+     *
+     * Returns a bit field number representing the currently active modifier keys.
+     *
+     * @return A bit field representing the active modifier keys
+     *
+     * @see GLFW#GLFW_MOD_SHIFT SHIFT modifier key bit
+     * @see GLFW#GLFW_MOD_CONTROL CTRL modifier key bit
+     * @see GLFW#GLFW_MOD_ALT ALT modifier key bit
+     * @see GLFW#GLFW_MOD_SUPER SUPER modifier key bit
+     * @see GLFW#GLFW_KEY_CAPS_LOCK CAPS LOCK modifier key bit
+     * @see GLFW#GLFW_KEY_NUM_LOCK NUM LOCK modifier key bit
+     * @see <a href="https://www.glfw.org/docs/latest/group__mods.html" target="_top">the online GLFW documentation</a>
+     */
+
+/**
+ * @class net.minecraftforge.client.event.InputEvent.MouseInputEvent
+ *
+ * Fired when a mouse button is clicked, <b>after</b> processing by vanilla code.
+ *
+ * This event is not \link Cancelable cancellable\endlink, and does not \link HasResult have a result\endlink. 
+ *
+ * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+ * only on the \link LogicalSide#CLIENT logical client\endlink. 
+ *
+ * @see ForgeHooksClient#fireMouseInput(int, int, int)
+ * @see <a href="https://www.glfw.org/docs/latest/input_guide.html#input_mouse_button" target="_top">the online GLFW documentation</a>
+ */
+
+    /**
+     * @fn public int MouseInputEvent::getButton()
+     *
+     * Returns the GLFW key code of the mouse button which triggered this event.
+     *
+     * @return The key code of the mouse button
+     *
+     * @see GLFW#GLFW_MOUSE_BUTTON_LEFT
+     * @see GLFW#GLFW_MOUSE_BUTTON_RIGHT
+     * @see GLFW#GLFW_MOUSE_BUTTON_MIDDLE
+     * @see GLFW key constants starting with 'GLFW_MOUSE_BUTTON_'
+     * @see <a href="http://www.glfw.org/docs/latest/input.html#input_mouse_button" target="_top">the online GLFW documentation</a>
+     */
+
+    /**
+     * @fn public int MouseInputEvent::getAction()
+     *
+     * Returns the action constant of the mouse button action which triggered this event.
+     *
+     * @return The mouse button's action constant
+     *
+     * @see GLFW#GLFW_PRESS
+     * @see GLFW#GLFW_RELEASE
+     */
+
+    /**
+     * @fn public int MouseInputEvent::getMods()
+     *
+     * Returns a bit field number representing the currently active modifier keys.
+     *
+     * @return A bit field representing the active modifier keys
+     *
+     * @see GLFW#GLFW_MOD_SHIFT SHIFT modifier key bit
+     * @see GLFW#GLFW_MOD_CONTROL CTRL modifier key bit
+     * @see GLFW#GLFW_MOD_ALT ALT modifier key bit
+     * @see GLFW#GLFW_MOD_SUPER SUPER modifier key bit
+     * @see GLFW#GLFW_KEY_CAPS_LOCK CAPS LOCK modifier key bit
+     * @see GLFW#GLFW_KEY_NUM_LOCK NUM LOCK modifier key bit
+     * @see <a href="https://www.glfw.org/docs/latest/group__mods.html" target="_top">the online GLFW documentation</a>
+     */
+
+/**
+ * @class net.minecraftforge.client.event.InputEvent.MouseScrollEvent
+ *
+ * Fired when a mouse scroll wheel is used outside of a screen and a player is loaded,
+ * <b>before</b> being processed by vanilla code.
+ *
+ * This event is \link Cancelable cancellable\endlink, and does not \link HasResult have a result\endlink.
+ * If the event is cancelled, then the mouse scroll event will not be processed further. 
+ *
+ * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+ * only on the \link LogicalSide#CLIENT logical client\endlink. 
+ *
+ * @see ForgeHooksClient#onMouseScroll(MouseHelper, double)
+ * @see <a href="https://www.glfw.org/docs/latest/input_guide.html#input_mouse_button" target="_top">the online GLFW documentation</a>
+ */
+
+    /**
+     * @fn public double MouseScrollEvent::getScrollDelta()
+     *
+     * Returns the amount of change or <em>delta</em> of the mouse scroll wheel.
+     *
+     * @return The delta of the mouse scroll
+     */
+
+    /**
+     * @fn public boolean MouseScrollEvent::isLeftDown()
+     *
+     * Returns if the left mouse button is currently pressed down.
+     *
+     * @return if the left mouse button is pressed
+     */
+
+    /**
+     * @fn public boolean MouseScrollEvent::isRightDown()
+     *
+     * Returns if the right mouse button is currently pressed down.
+     *
+     * @return if the right mouse button is pressed
+     */
+
+    /**
+     * @fn public boolean MouseScrollEvent::isMiddleDown()
+     *
+     * Returns if the middle mouse button is currently pressed down.
+     *
+     * @return if the middle mouse button is pressed
+     */
+
+    /**
+     * @fn public double MouseScrollEvent::getMouseX()
+     *
+     * Returns the X coordinate of the mouse pointer, relative to the \link MainWindow main window\endlink of the game.
+     *
+     * @return The X position of the mouse cursor
+     */
+
+    /**
+     * @fn public double MouseScrollEvent::getMouseY()
+     *
+     * Returns the X coordinate of the mouse pointer, relative to the \link MainWindow main window\endlink of the game.
+     *
+     * @return The Y position of the mouse cursor
+     */
+
+/**
+ * @class net.minecraftforge.client.event.InputEvent.KeyInputEvent
+ *
+ * Fired when a keyboard key input occurs, such as pressing, releasing, or repeating a key.
+ *
+ * This event is not \link Cancelable cancellable\endlink, and does not \link HasResult have a result\endlink. 
+ *
+ * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+ * only on the \link LogicalSide#CLIENT logical client\endlink. 
+ *
+ * @see ForgeHooksClient#fireKeyInput(int, int, int, int)
+ * @see InputMappings#getInputByCode(int, int)
+ */
+
+    /**
+     * @fn public int KeyInputEvent::getKey()
+     *
+     * Returns the GLFW (platform-agnostic) key code of the keyboard key.
+     *
+     * @return The GLFW (platform-agnostic) key code
+     *
+     * @see GLFW key constants starting with 'GLFW_KEY_'
+     * @see <a href="https://www.glfw.org/docs/latest/group__keys.html" target="_top">the online GLFW documentation</a>
+     */
+
+    /**
+     * @fn public int KeyInputEvent::getScanCode()
+     *
+     * Returns the platform-specific scan code of the keyboard key.
+     *
+     * The scan code is unique for every key, regardless of whether it has a key code.
+     * Scan codes are platform-specific but consistent over time, so keys will have different scan codes depending
+     * on the platform but they are safe to save to disk as custom key bindings.
+     *
+     * @return The platform-specific scan code
+     */
+
+    /**
+     * @fn public int KeyInputEvent::getAction()
+     *
+     * Returns the action constant of the keyboard key action which triggered this event.
+     *
+     * @return The keyboard key's action constant
+     *
+     * @see GLFW#GLFW_PRESS
+     * @see GLFW#GLFW_RELEASE
+     * @see GLFW#GLFW_REPEAT
+     */
+
+    /**
+     * @fn public int KeyInputEvent::getModifiers()
+     *
+     * Returns a bit field number representing the currently active modifier keys.
+     *
+     * @return A bit field representing the active modifier keys
+     *
+     * @see GLFW#GLFW_MOD_SHIFT SHIFT modifier key bit
+     * @see GLFW#GLFW_MOD_CONTROL CTRL modifier key bit
+     * @see GLFW#GLFW_MOD_ALT ALT modifier key bit
+     * @see GLFW#GLFW_MOD_SUPER SUPER modifier key bit
+     * @see GLFW#GLFW_KEY_CAPS_LOCK CAPS LOCK modifier key bit
+     * @see GLFW#GLFW_KEY_NUM_LOCK NUM LOCK modifier key bit
+     * @see <a href="https://www.glfw.org/docs/latest/group__mods.html" target="_top">the online GLFW documentation</a>
+     */
+
+/**
+ * @class net.minecraftforge.client.event.InputEvent.ClickInputEvent
+ *
+ * Fired when a keybinding that involves clicking the mouse buttons is triggered.
+ *
+ * The key bindings that trigger this event are:
+ * <ul>
+ *     <li>\link GameSettings#keyBindAttack <b>Attack</b>\endlink - defaults to <em>left mouse click</em></li>
+ *     <li>\link GameSettings#keyBindUseItem <b>Use Item</b>\endlink - defaults to <em>right mouse click</em></li>
+ *     <li>\link GameSettings#keyBindPickBlock <b>Pick Block</b>\endlink - defaults to <em>middle mouse click</em></li>
+ * </ul>
+ *
+ * This event is \link Cancelable cancellable\endlink, and does not \link HasResult have a result\endlink.
+ * If this event is cancelled, then the keybind's action is not processed further, and the hand will be swung
+ * according to \ref #shouldSwingHand().
+ *
+ * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+ * only on the \link LogicalSide#CLIENT logical client\endlink. 
+ *
+ * @see ForgeHooksClient#onClickInput(int, KeyBinding, Hand)
+ */
+
+    /**
+     * @fn public void ClickInputEvent::setSwingHand(boolean value)
+     *
+     * Sets whether to swing the player entity's hand.
+     * This takes effect even if the event is cancelled.
+     * The default value is \c true.
+     *
+     * @param value whether to swing the hand
+     */
+
+    /**
+     * @fn public boolean ClickInputEvent::shouldSwingHand()
+     *
+     * Returns whether to swing the player entity's hand.
+     * This takes effect even if the event is cancelled.
+     *
+     * @return Whether to swing the hand
+     * @see #setSwingHand(boolean)
+     */
+
+    /**
+     * @fn public Hand ClickInputEvent::getHand()
+     *
+     * The hand which triggered this event.
+     *
+     * The event will be called for both hands if this is a <em>use item</em> action,
+     * regardless of both event's cancellation.
+     * This will always be \ref Hand#MAIN_HAND if this is an attack or pick block input.
+     *
+     * @return The hand causing the input
+     */
+
+    /**
+     * @fn public boolean ClickInputEvent::isAttack()
+     *
+     * Returns if the clicked mouse button is the left mouse button.
+     *
+     * This is named due to the left mouse button being the default \link GameSettings#keyBindAttack <b>Attack</b> keybind\endlink.
+     *
+     * @return if the mouse button is the left mouse button
+     */
+
+    /**
+     * @fn public boolean ClickInputEvent::isUseItem()
+     *
+     * Returns if the clicked mouse button is the right mouse button.
+
+     * This is named due to the right mouse button being the default \link GameSettings#keyBindUseItem <b>Use Item</b> keybind\endlink.
+     *
+     * @return if the mouse button is the right mouse button
+     */
+
+    /**
+     * @fn public boolean ClickInputEvent::isPickBlock()
+     *
+     * Returns if the clicked mouse button is the middle mouse button.
+
+     * This is named due to the middle mouse button being the default \link GameSettings#keyBindPickBlock <b>Pick Block</b> keybind\endlink.
+     *
+     * @return if the mouse button is the middle mouse button
+     */
+
+    /**
+     * @fn public KeyBinding ClickInputEvent::getKeyBinding()
+     *
+     * Returns the \ref KeyBinding that triggered this event.
+     *
+     * @return The keybinding that triggered this event
+     */

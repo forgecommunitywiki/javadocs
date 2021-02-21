@@ -1,125 +1,122 @@
-plugins { id "org.ysb33r.doxygen" version "0.6" }
-
-ext {
-    mc_version = "unknown"
-    mc_main_version = "unknown"
-    forge_version = "unknown-0.0.0"
-    mapping_channel = "unknown"
-    mapping_version = "19700101-unknown"
+buildscript {
+    repositories {
+        maven { url = 'https://files.minecraftforge.net/maven' }
+        mavenCentral()
+    }
+    dependencies {
+        classpath group: 'net.minecraftforge', name: 'srgutils', version: '0.4.1'
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: forgegradle_version
+    }
 }
 
-import groovy.json.JsonSlurper
+import fcw.tasks.*
 
-final File devGradle = file('.forgedev/build.gradle')
-final File versionAppendage = file('forge.gradle')
-final File versionJson = file("$buildDir/forge_version.json")
+import java.util.stream.Collectors
 
-task getVersion(group: 'setup') {
-    description "Reads the Minecraft, Forge, and mapping version from the build JSON"
-    doLast {
-        if (!versionJson.exists()) {
-            println "Version JSON not found"
-            return
+println "MC: ${minecraft_version}, Forge: ${forge_version}, MCP mappings: ${mappings_version} on channel ${mappings_channel}"
+
+allprojects {
+    ext {
+        // Defines dependencies which will be exported into the workspace for the javadocs
+        SOURCES = [
+                "forge": "net.minecraftforge:forge:"
+        ] as LinkedHashMap
+    }
+}
+
+task writeDocs(group: 'javadocs') {
+    description 'Write out doc files for all source sets'
+}
+
+task copySources(group: 'javadocs') {
+    description 'Copy sources from respective artifacts for all source sets'
+}
+
+task removeComments(group: 'javadocs') {
+    description 'Remove javadoc comments from source files for all source sets'
+}
+
+task applyDocs(group: 'javadocs', dependsOn: removeComments) {
+    description 'Apply javadocs from doc files for all source sets'
+}
+
+task setup(group: 'javadocs', dependsOn: [copySources, applyDocs]) {
+    description 'Sets up the javadocs workspace'
+}
+
+project(':workspace') {
+    apply plugin: 'net.minecraftforge.gradle'
+
+    minecraft {
+        mappings channel: mappings_channel, version: mappings_version
+    }
+
+    dependencies {
+        minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+    }
+
+    afterEvaluate {
+        def mcDeps = configurations.minecraft.incoming.resolutionResult.allDependencies.collect { it.selected.id }
+
+        SOURCES.entrySet().stream().forEach { sourceEntry ->
+            String sourceSetName = sourceEntry.key
+            def pattern = sourceEntry.value
+            def matchingDeps = mcDeps.stream().filter { it.displayName.startsWith pattern }.collect(Collectors.toSet())
+            if (matchingDeps.size() == 0) {
+                logger.warn("Source pattern '{} -> {}' has no matching dependencies, skipping", sourceSetName, pattern)
+                return
+            } else if (matchingDeps.size() > 1) {
+                logger.warn("Source '{} -> {}' has more than 1 dependency, skipping: {}", sourceSetName, pattern, matchingDeps)
+                return
+            }
+            def matchingDep = matchingDeps[0]
+            logger.lifecycle("- Source set '{}' for artifact '{}'", sourceSetName, matchingDep)
+
+            SourceSet sourceSet = sourceSets.create(sourceSetName)
+
+            def config = configurations.maybeCreate(sourceSet.implementationConfigurationName)
+            config.canBeResolved(true)
+            configurations.minecraft.dependencies.forEach {
+                dependencies.add(sourceSet.implementationConfigurationName, it)
+            }
+
+            def writeDocsTask = project.getTasks().create("write" + sourceSetName.capitalize() + "Docs", MakeDocs.class)
+            writeDocs.dependsOn writeDocsTask
+            writeDocsTask.configure {
+                it.group 'javadocs'
+                it.description "Write out doc files for source set '${sourceSetName}'"
+                it.docsDir = rootProject.file('src/docs')
+                it.configuration = config
+                it.sourcesDir = sourceSet.java.srcDirs[0]
+            }
+
+            def copySourcesTask = project.getTasks().create("copy" + sourceSetName.capitalize() + "Sources", CopySources.class)
+            copySources.dependsOn copySourcesTask
+            copySourcesTask.configure {
+                it.group 'javadocs'
+                it.description "Copy sources from artifact ${matchingDep} for source set '${sourceSetName}'"
+                it.artifact = matchingDep
+                it.destDir = sourceSet.java.srcDirs[0]
+            }
+
+            def removeCommentsTask = project.getTasks().create("remove" + sourceSetName.capitalize() + "Comments", RemoveComments.class)
+            removeComments.dependsOn removeCommentsTask
+            removeCommentsTask.configure {
+                it.group 'javadocs'
+                it.description "Remove javadoc comments from source files for source set '${sourceSetName}'"
+                it.directory = sourceSet.java.srcDirs[0]
+            }
+
+            def applyDocsTask = project.getTasks().create("apply" + sourceSetName.capitalize() + "Docs", ApplyDocs.class)
+            applyDocs.dependsOn applyDocsTask
+            applyDocsTask.configure {
+                it.group 'javadocs'
+                it.description "Apply javadocs from doc files for source set '${sourceSetName}'"
+                it.dependsOn removeCommentsTask
+                it.docsDir = rootProject.file('src/docs')
+                it.configuration = config
+                it.sourcesDir = sourceSet.java.srcDirs[0]
+            }
         }
-        def parsedJson = new JsonSlurper().parseText(versionJson.text)
-        project.mc_version = parsedJson.mc_version
-        project.forge_version = parsedJson.forge_version
-        project.mapping_channel = parsedJson.mapping_channel
-        project.mapping_version = parsedJson.mapping_version
-        project.mc_main_version = mc_version.substring(0, mc_version.lastIndexOf('.'))
-        project.version = "${project.forge_version}, ${project.mapping_version} (${project.mapping_channel} channel)"
-
-        println "MC: ${mc_version} (${mc_main_version}), Forge: ${forge_version}, Mapping: ${mapping_version} on channel ${mapping_channel}"
     }
 }
-
-task retrieveVersion(type: GradleBuild, group: 'setup') {
-    finalizedBy getVersion
-    description "Retrieves the Minecraft, Forge, and mappings versions from the ForgeDev submodule"
-    String originalGradle
-    doFirst {
-        String versionAppend = versionAppendage.text
-        originalGradle = devGradle.text
-        devGradle.text = originalGradle + versionAppend
-    }
-
-    inputs.dir(fileTree('.forgedev').exclude(".gradle"))
-    inputs.file(versionAppendage)
-    outputs.file(versionJson)
-
-    buildFile devGradle
-    tasks = ['writeVersion']
-    startParameter.projectProperties << project.gradle.startParameter.projectProperties
-    startParameter.projectProperties.put "realBuildDir", buildDir.getPath()
-
-    doLast {
-        devGradle.text = originalGradle
-    }
-}
-
-task setupForge(type: GradleBuild, group: 'setup') {
-    shouldRunAfter getVersion
-    description "Setup the ForgeDev submodule workspace with the MC/Forge sources."
-
-    inputs.file versionJson
-    outputs.dir(".forgedev/projects/forge/src/main/java").withPropertyName("mc_sources")
-    outputs.dir(".forgedev/src/main/java").withPropertyName("forge_sources")
-
-    buildFile devGradle
-    tasks = ['setup']
-    startParameter.projectProperties << project.gradle.startParameter.projectProperties
-    startParameter.projectProperties.put "realBuildDir", buildDir.getPath()
-    doLast {
-        retrieveVersion.execute()
-    }
-}
-
-task copySources(type: Sync, dependsOn: [getVersion, setupForge], group: 'setup') {
-    description "Copies the source files from the ForgeDev submodule to the main workspace."
-
-    inputs.dir(".forgedev/projects/forge/src/main/java").withPropertyName("mc_sources")
-    inputs.dir(".forgedev/src/main/java").withPropertyName("forge_sources")
-    outputs.dir(".java").withPropertyName("merged_sources")
-
-    from ".forgedev/projects/forge/src/main/java"
-    from ".forgedev/src/main/java"
-    into ".java"
-    doLast {
-        fileTree(".java").forEach({ f ->
-            f.text = (f.text =~ "/\\*[\\s\\S]*?\\*/").replaceAll('')
-        })
-    }
-}
-
-doxygen {
-    dependsOn getVersion
-    mustRunAfter copySources
-    description "Generates the documentation using Doxygen"
-
-    inputs.dir(".java").withPropertyName("merged_sources")
-    inputs.dir("src").withPropertyName("src")
-    outputs.dir("out/html/").withPropertyName("output")
-
-    source ".java"
-    source "src/docs"
-    outputDir "out"
-
-    doFirst {
-        project.file("out/html/${project.mc_main_version}").mkdirs()
-        html_output "html/${project.mc_main_version}"
-    }
-
-    project_name ""
-
-    template "Doxyfile"
-    executables {
-        doxygen version: '1.8.20'
-    }
-}
-
-task sourcedDoxygen(dependsOn: [copySources, doxygen], group: 'documentation') {
-    mustRunAfter doxygen
-    description "Generates the source files and the documentation"
-}
-
-build.dependsOn('copySources')

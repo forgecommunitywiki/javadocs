@@ -1,0 +1,11 @@
+repositories {
+    mavenCentral()
+    maven { url = 'https://files.minecraftforge.net/maven' }
+}
+
+dependencies {
+    implementation group: 'net.minecraftforge', name: 'srgutils', version: '0.4.1'
+    implementation group: 'com.github.javaparser', name: 'javaparser-symbol-solver-core', version: '3.19.0'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.1'
+    implementation group: 'org.honton.chas.hocon', name: 'jackson-dataformat-hocon', version: '1.1.1'
+}

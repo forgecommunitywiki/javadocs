@@ -155,7 +155,10 @@ public class DocInfo {
                 if (!javadoc.getBlockTags().isEmpty()) {
                     gen.writeObjectFieldStart("tags");
                     for (JavadocBlockTag tag : javadoc.getBlockTags()) {
-                        String content = tag.getContent().toText();
+                        String text = tag.getContent().toText();
+                        String content = tag.getName()
+                            .map(str -> str + " " + text)
+                            .orElse(text);
                         if (content.indexOf('\n') == -1) {
                             gen.writeStringField(tag.getTagName(), content);
                         } else {

@@ -69,6 +69,7 @@ public class MakeDocs extends DefaultTask {
         sourceRoot.getParserConfiguration()
             .setSymbolResolver(symbolSolver)
             .setAttributeComments(true);
+        sourceRoot.setPrinter(ParserUtils.PRINTER::print);
 
         sourceRoot.parse("", (local, absolute, result) -> {
             final CompilationUnit cu = result.getResult().orElseThrow(() -> new IllegalStateException(

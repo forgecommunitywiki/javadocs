@@ -6,11 +6,23 @@ import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.type.Type;
+import com.github.javaparser.printer.DefaultPrettyPrinter;
+import com.github.javaparser.printer.Printer;
+import com.github.javaparser.printer.configuration.DefaultConfigurationOption;
+import com.github.javaparser.printer.configuration.DefaultPrinterConfiguration.ConfigOption;
 import com.github.javaparser.resolution.SymbolResolver;
 import com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration;
 import com.github.javaparser.resolution.types.ResolvedType;
 
 public class ParserUtils {
+    public static final Printer PRINTER = new DefaultPrettyPrinter();
+
+    static {
+        PRINTER.getConfiguration().addOption(new DefaultConfigurationOption(
+            ConfigOption.MAX_ENUM_CONSTANTS_TO_ALIGN_HORIZONTALLY, 0)
+        );
+    }
+
     public static String toFQN(ClassOrInterfaceDeclaration type) {
         return toFQN(type.resolve());
     }

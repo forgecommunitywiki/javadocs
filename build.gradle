@@ -28,11 +28,17 @@ task writeDocs(group: 'javadocs') {
     description 'Write out doc files for all source sets'
 }
 
+task clearSources(group: 'javadocs') {
+    description 'Clears source folder for all source sets'
+}
+
 task copySources(group: 'javadocs') {
+    shouldRunAfter clearSources
     description 'Copy sources from respective artifacts for all source sets'
 }
 
 task removeComments(group: 'javadocs') {
+    shouldRunAfter copySources
     description 'Remove javadoc comments from source files for all source sets'
 }
 
@@ -40,7 +46,7 @@ task applyDocs(group: 'javadocs', dependsOn: removeComments) {
     description 'Apply javadocs from doc files for all source sets'
 }
 
-task setup(group: 'javadocs', dependsOn: [copySources, applyDocs]) {
+task setup(group: 'javadocs', dependsOn: [clearSources, copySources, applyDocs]) {
     description 'Sets up the javadocs workspace'
 }
 
@@ -90,11 +96,20 @@ project(':workspace') {
                 it.sourcesDir = sourceSet.java.srcDirs[0]
             }
 
+            def clearSourcesTask = project.getTasks().create("clear" + sourceSetName.capitalize() + "Sources", Delete.class)
+            clearSources.dependsOn clearSourcesTask
+            clearSourcesTask.configure {
+                it.group 'javadocs'
+                it.description "Clears source folder for source set '${sourceSetName}'"
+                it.delete sourceSet.java.srcDirs[0]
+            }
+
             def copySourcesTask = project.getTasks().create("copy" + sourceSetName.capitalize() + "Sources", CopySources.class)
             copySources.dependsOn copySourcesTask
             copySourcesTask.configure {
                 it.group 'javadocs'
                 it.description "Copy sources from artifact ${matchingDep} for source set '${sourceSetName}'"
+                it.shouldRunAfter clearSourcesTask
                 it.artifact = matchingDep
                 it.destDir = sourceSet.java.srcDirs[0]
             }
@@ -104,6 +119,7 @@ project(':workspace') {
             removeCommentsTask.configure {
                 it.group 'javadocs'
                 it.description "Remove javadoc comments from source files for source set '${sourceSetName}'"
+                it.shouldRunAfter copySourcesTask
                 it.directory = sourceSet.java.srcDirs[0]
             }
 

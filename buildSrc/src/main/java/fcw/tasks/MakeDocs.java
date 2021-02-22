@@ -1,15 +1,12 @@
 package fcw.tasks;
 
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.EnumConstantDeclaration;
 import com.github.javaparser.ast.body.EnumDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
-import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
-import com.github.javaparser.javadoc.Javadoc;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JarTypeSolver;
@@ -73,157 +70,57 @@ public class MakeDocs extends DefaultTask {
 
             if (cu.getAllComments().isEmpty()) return SourceRoot.Callback.Result.DONT_SAVE;
 
-            cu.accept(new VoidVisitorAdapter<Void>() {
-                @Override
-                public void visit(ClassOrInterfaceDeclaration n, Void arg) {
-                    n.getJavadocComment().ifPresent(comment -> {
-                        Javadoc javadoc = DocUtils.parseComment(comment);
-                        if (javadoc != null) {
-                            String fqn = ParserUtils.toFQN(n);
+            for (TypeDeclaration<?> type : cu.getTypes()) {
+                final String fqn = ParserUtils.toFQN(type.resolve());
 
-                            ClassInfo classInfo = new ClassInfo(fqn);
-                            classInfo.javadoc = javadoc;
-                            ClassInfo old = doc.classes.put(fqn, classInfo);
-                            if (old != null) {
-                                throw new IllegalStateException(
-                                    "Class " + fqn + " already had an entry before reaching it");
-                            }
-                        }
+                type.getJavadocComment().map(DocUtils::parseComment).ifPresent(javadoc -> {
+                    ClassInfo classInfo = new ClassInfo(fqn);
+                    classInfo.javadoc = javadoc;
+                    doc.classes.put(fqn, classInfo);
+                });
+
+                for (FieldDeclaration field : type.getFields()) {
+                    field.getJavadocComment().map(DocUtils::parseComment).ifPresent(javadoc -> {
+                        ClassInfo info = doc.classes.computeIfAbsent(fqn, ClassInfo::new);
+                        ClassInfo.FieldInfo fieldInfo = new ClassInfo.FieldInfo(field.resolve().getName());
+                        fieldInfo.javadoc = javadoc;
+                        info.fields.put(fieldInfo.name, fieldInfo);
                     });
-                    super.visit(n, arg);
                 }
 
-                @Override
-                public void visit(EnumDeclaration n, Void arg) {
-                    n.getJavadocComment().ifPresent(comment -> {
-                        Javadoc javadoc = DocUtils.parseComment(comment);
-                        if (javadoc != null) {
-                            String fqn = ParserUtils.toFQN(n.resolve());
-
-                            ClassInfo classInfo = new ClassInfo(fqn);
-                            classInfo.javadoc = javadoc;
-                            ClassInfo old = doc.classes.put(fqn, classInfo);
-                            if (old != null) {
-                                throw new IllegalStateException(
-                                    "Class " + fqn + " already had an entry before reaching it");
-                            }
-                        }
-                    });
-                    super.visit(n, arg);
-                }
-
-                @Override
-                public void visit(FieldDeclaration n, Void arg) {
-                    n.getJavadocComment().ifPresent(comment -> {
-                        Javadoc javadoc = DocUtils.parseComment(comment);
-                        if (javadoc != null) {
-                            final TypeDeclaration<?> classDeclaration = n.getParentNode()
-                                .filter(TypeDeclaration.class::isInstance)
-                                .map(TypeDeclaration.class::cast)
-                                .orElse(null);
-                            if (classDeclaration == null) return;
-                            // TODO: fields can be in anonymous classes.
-
-                            String fqn = ParserUtils.toFQN(classDeclaration.resolve());
-
+                if (type instanceof EnumDeclaration) {
+                    for (EnumConstantDeclaration enumConstant : ((EnumDeclaration) type).getEntries()) {
+                        enumConstant.getJavadocComment().map(DocUtils::parseComment).ifPresent(javadoc -> {
                             ClassInfo info = doc.classes.computeIfAbsent(fqn, ClassInfo::new);
-                            ClassInfo.FieldInfo field = new ClassInfo.FieldInfo(n.resolve().getName());
-                            field.javadoc = javadoc;
-
-                            ClassInfo.FieldInfo old = info.fields.put(field.name, field);
-                            if (old != null) {
-                                throw new IllegalStateException(
-                                    "Field " + field + " already had an entry before reaching it");
-                            }
-                        }
-                    });
-                    super.visit(n, arg);
+                            ClassInfo.FieldInfo fieldInfo = new ClassInfo.FieldInfo(enumConstant.resolve().getName());
+                            fieldInfo.javadoc = javadoc;
+                            info.fields.put(fieldInfo.name, fieldInfo);
+                        });
+                    }
                 }
 
-                @Override
-                public void visit(EnumConstantDeclaration n, Void arg) {
-                    n.getJavadocComment().ifPresent(comment -> {
-                        Javadoc javadoc = DocUtils.parseComment(comment);
-                        if (javadoc != null) {
-                            final EnumDeclaration classDeclaration = n.getParentNode()
-                                .filter(EnumDeclaration.class::isInstance)
-                                .map(EnumDeclaration.class::cast)
-                                .orElseThrow(() -> new IllegalStateException("Enum constant does not have a parent class"));
-
-                            String fqn = ParserUtils.toFQN(classDeclaration.resolve());
-
-                            ClassInfo info = doc.classes.computeIfAbsent(fqn, ClassInfo::new);
-                            ClassInfo.FieldInfo field = new ClassInfo.FieldInfo(n.resolve().getName());
-                            field.javadoc = javadoc;
-
-                            ClassInfo.FieldInfo old = info.fields.put(field.name, field);
-                            if (old != null) {
-                                throw new IllegalStateException(
-                                    "Enum constant " + field + " already had an entry before reaching it");
-                            }
-                        }
+                for (MethodDeclaration method : type.getMethods()) {
+                    method.getJavadocComment().map(DocUtils::parseComment).ifPresent(javadoc -> {
+                        String key = method.getNameAsString() + " " + ParserUtils.toDescriptor(symbolSolver, method);
+                        ClassInfo info = doc.classes.computeIfAbsent(fqn, ClassInfo::new);
+                        ClassInfo.MethodInfo methodInfo = new ClassInfo.MethodInfo(
+                            method.getNameAsString(), ParserUtils.toDescriptor(symbolSolver, method));
+                        methodInfo.javadoc = javadoc;
+                        info.methods.put(methodInfo.name + " " + methodInfo.descriptor, methodInfo);
                     });
-                    super.visit(n, arg);
                 }
 
-                @Override
-                public void visit(MethodDeclaration n, Void arg) {
-                    n.getJavadocComment().ifPresent(comment -> {
-                        Javadoc javadoc = DocUtils.parseComment(comment);
-                        if (javadoc != null) {
-                            final TypeDeclaration<?> classDeclaration = n.getParentNode()
-                                .filter(TypeDeclaration.class::isInstance)
-                                .map(TypeDeclaration.class::cast)
-                                .orElse(null);
-                            if (classDeclaration == null) return;
-                            // TODO: methods can be in anonymous classes.
-
-                            String fqn = ParserUtils.toFQN(classDeclaration.resolve());
-
-                            ClassInfo info = doc.classes.computeIfAbsent(fqn, ClassInfo::new);
-                            ClassInfo.MethodInfo method = new ClassInfo.MethodInfo(n.getNameAsString(),
-                                ParserUtils.toDescriptor(symbolSolver, n));
-                            method.javadoc = javadoc;
-
-                            ClassInfo.MethodInfo old = info.methods.put(method.name + " " + method.descriptor, method);
-                            if (old != null) {
-                                throw new IllegalStateException(
-                                    "Method " + method + " already had an entry before reaching it");
-                            }
-                        }
+                for (ConstructorDeclaration constructor : type.getConstructors()) {
+                    constructor.getJavadocComment().map(DocUtils::parseComment).ifPresent(javadoc -> {
+                        String key = constructor.getNameAsString() + " " + ParserUtils.toDescriptor(symbolSolver, constructor);
+                        ClassInfo info = doc.classes.computeIfAbsent(fqn, ClassInfo::new);
+                        ClassInfo.MethodInfo methodInfo = new ClassInfo.MethodInfo(
+                            constructor.getNameAsString(), ParserUtils.toDescriptor(symbolSolver, constructor));
+                        methodInfo.javadoc = javadoc;
+                        info.methods.put(methodInfo.name + " " + methodInfo.descriptor, methodInfo);
                     });
-                    super.visit(n, arg);
                 }
-
-                @Override
-                public void visit(ConstructorDeclaration n, Void arg) {
-                    n.getJavadocComment().ifPresent(comment -> {
-                        Javadoc javadoc = DocUtils.parseComment(comment);
-                        if (javadoc != null) {
-                            final TypeDeclaration<?> classDeclaration = n.getParentNode()
-                                .filter(TypeDeclaration.class::isInstance)
-                                .map(TypeDeclaration.class::cast)
-                                .orElse(null);
-                            if (classDeclaration == null) return;
-                            // TODO: methods can be in anonymous classes.
-
-                            String fqn = ParserUtils.toFQN(classDeclaration.resolve());
-
-                            ClassInfo info = doc.classes.computeIfAbsent(fqn, ClassInfo::new);
-                            ClassInfo.MethodInfo method = new ClassInfo.MethodInfo(n.getNameAsString(),
-                                ParserUtils.toDescriptor(symbolSolver, n));
-                            method.javadoc = javadoc;
-
-                            ClassInfo.MethodInfo old = info.methods.put(method.name + " " + method.descriptor, method);
-                            if (old != null) {
-                                throw new IllegalStateException(
-                                    "Method " + method + " already had an entry before reaching it");
-                            }
-                        }
-                    });
-                    super.visit(n, arg);
-                }
-            }, null);
+            }
 
             if (doc.classes.isEmpty()) return SourceRoot.Callback.Result.DONT_SAVE;
 

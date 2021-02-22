@@ -1,20 +1,18 @@
 package fcw.tasks;
 
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.EnumConstantDeclaration;
 import com.github.javaparser.ast.body.EnumDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
-import com.github.javaparser.ast.visitor.ModifierVisitor;
-import com.github.javaparser.ast.visitor.Visitable;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JarTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 import com.github.javaparser.utils.SourceRoot;
+import com.github.javaparser.utils.SourceRoot.Callback.Result;
 import fcw.DocInfo;
 import fcw.DocUtils;
 import fcw.ParserUtils;
@@ -61,116 +59,67 @@ public class ApplyDocs extends DefaultTask {
                 .resolve(local.getFileName().toString().replaceFirst("\\..*$", "") + docFileExtension);
             Path docsFile = docsRoot.resolve(docsFileLocal);
 
-            if (Files.notExists(docsFile)) return SourceRoot.Callback.Result.DONT_SAVE;
+            if (Files.notExists(docsFile)) return Result.DONT_SAVE;
 
             DocInfo doc = DocInfo.read(docsFile);
 
-            if (doc.classes.isEmpty()) return SourceRoot.Callback.Result.DONT_SAVE;
+            if (doc.classes.isEmpty()) return Result.DONT_SAVE;
 
-            cu.accept(new ModifierVisitor<Void>() {
-                @Override
-                public Visitable visit(ClassOrInterfaceDeclaration n, Void arg) {
-                    String fqn = ParserUtils.toFQN(n);
-                    ClassInfo clsInfo = doc.classes.get(fqn);
-                    if (clsInfo != null && clsInfo.javadoc != null) {
-                        n.setComment(DocUtils.createComment(clsInfo.javadoc));
-                    }
-                    return super.visit(n, arg);
+            boolean modified = false;
+
+            for (TypeDeclaration<?> type : cu.getTypes()) {
+                final String fqn = ParserUtils.toFQN(type.resolve());
+
+                ClassInfo clsInfo = doc.classes.get(fqn);
+                if (clsInfo == null) continue;
+                if (clsInfo.javadoc != null) {
+                    type.setComment(DocUtils.createComment(clsInfo.javadoc));
+                    modified = true;
                 }
 
-                @Override
-                public Visitable visit(EnumDeclaration n, Void arg) {
-                    String fqn = ParserUtils.toFQN(n.resolve());
-                    ClassInfo clsInfo = doc.classes.get(fqn);
-                    if (clsInfo != null && clsInfo.javadoc != null) {
-                        n.setComment(DocUtils.createComment(clsInfo.javadoc));
-                    }
-                    return super.visit(n, arg);
-                }
-
-                @Override
-                public Visitable visit(FieldDeclaration n, Void arg) {
-                    final TypeDeclaration<?> classDeclaration = n.getParentNode()
-                        .filter(TypeDeclaration.class::isInstance)
-                        .map(TypeDeclaration.class::cast)
-                        .orElse(null);
-                    if (classDeclaration == null) return super.visit(n, arg);
-                    // TODO: fields can be in anonymous classes.
-
-                    String fqn = ParserUtils.toFQN(classDeclaration.resolve());
-                    ClassInfo clsInfo = doc.classes.get(fqn);
-                    if (clsInfo != null) {
-                        ClassInfo.FieldInfo fieldInfo = clsInfo.fields.get(n.resolve().getName());
+                if (!clsInfo.fields.isEmpty()) {
+                    for (FieldDeclaration field : type.getFields()) {
+                        ClassInfo.FieldInfo fieldInfo = clsInfo.fields.get(field.resolve().getName());
                         if (fieldInfo != null && fieldInfo.javadoc != null) {
-                            n.setComment(DocUtils.createComment(fieldInfo.javadoc));
+                            type.setComment(DocUtils.createComment(fieldInfo.javadoc));
+                            modified = true;
                         }
                     }
-                    return super.visit(n, arg);
-                }
 
-                @Override
-                public Visitable visit(EnumConstantDeclaration n, Void arg) {
-                    final EnumDeclaration classDeclaration = n.getParentNode()
-                        .filter(EnumDeclaration.class::isInstance)
-                        .map(EnumDeclaration.class::cast)
-                        .orElse(null);
-                    if (classDeclaration == null) return super.visit(n, arg);
-
-                    String fqn = ParserUtils.toFQN(classDeclaration.resolve());
-                    ClassInfo clsInfo = doc.classes.get(fqn);
-                    if (clsInfo != null) {
-                        ClassInfo.FieldInfo fieldInfo = clsInfo.fields.get(n.resolve().getName());
-                        if (fieldInfo != null && fieldInfo.javadoc != null) {
-                            n.setComment(DocUtils.createComment(fieldInfo.javadoc));
+                    if (type instanceof EnumDeclaration) {
+                        EnumDeclaration enumType = (EnumDeclaration) type;
+                        for (EnumConstantDeclaration enumConstant : enumType.getEntries()) {
+                            ClassInfo.FieldInfo fieldInfo = clsInfo.fields.get(enumConstant.resolve().getName());
+                            if (fieldInfo != null && fieldInfo.javadoc != null) {
+                                type.setComment(DocUtils.createComment(fieldInfo.javadoc));
+                                modified = true;
+                            }
                         }
                     }
-                    return super.visit(n, arg);
                 }
 
-                @Override
-                public Visitable visit(MethodDeclaration n, Void arg) {
-                    final TypeDeclaration<?> classDeclaration = n.getParentNode()
-                        .filter(TypeDeclaration.class::isInstance)
-                        .map(TypeDeclaration.class::cast)
-                        .orElse(null);
-                    if (classDeclaration == null) return super.visit(n, arg);
-                    // TODO: methods can be in anonymous classes.
-
-                    String fqn = ParserUtils.toFQN(classDeclaration.resolve());
-                    ClassInfo clsInfo = doc.classes.get(fqn);
-                    if (clsInfo != null) {
-                        String key = n.getNameAsString() + " " + ParserUtils.toDescriptor(symbolSolver, n);
+                if (!clsInfo.methods.isEmpty()) {
+                    for (MethodDeclaration method : type.getMethods()) {
+                        String key = method.getNameAsString() + " " + ParserUtils.toDescriptor(symbolSolver, method);
                         ClassInfo.MethodInfo methodInfo = clsInfo.methods.get(key);
                         if (methodInfo != null && methodInfo.javadoc != null) {
-                            n.setComment(DocUtils.createComment(methodInfo.javadoc));
+                            type.setComment(DocUtils.createComment(methodInfo.javadoc));
+                            modified = true;
                         }
                     }
-                    return super.visit(n, arg);
-                }
 
-                @Override
-                public Visitable visit(ConstructorDeclaration n, Void arg) {
-                    final TypeDeclaration<?> classDeclaration = n.getParentNode()
-                        .filter(TypeDeclaration.class::isInstance)
-                        .map(TypeDeclaration.class::cast)
-                        .orElse(null);
-                    if (classDeclaration == null) return super.visit(n, arg);
-                    // TODO: methods can be in anonymous classes.
-
-                    String fqn = ParserUtils.toFQN(classDeclaration.resolve());
-                    ClassInfo clsInfo = doc.classes.get(fqn);
-                    if (clsInfo != null) {
-                        String key = n.getNameAsString() + " " + ParserUtils.toDescriptor(symbolSolver, n);
-                        ClassInfo.MethodInfo methodInfo = clsInfo.methods.get(key);
-                        if (methodInfo != null && methodInfo.javadoc != null) {
-                            n.setComment(DocUtils.createComment(methodInfo.javadoc));
+                    for (ConstructorDeclaration constructor : type.getConstructors()) {
+                        String key = constructor.getNameAsString() + " " + ParserUtils.toDescriptor(symbolSolver, constructor);
+                        ClassInfo.MethodInfo ctorInfo = clsInfo.methods.get(key);
+                        if (ctorInfo != null && ctorInfo.javadoc != null) {
+                            type.setComment(DocUtils.createComment(ctorInfo.javadoc));
+                            modified = true;
                         }
                     }
-                    return super.visit(n, arg);
                 }
-            }, null);
+            }
 
-            return SourceRoot.Callback.Result.SAVE;
+            return modified ? Result.SAVE : Result.DONT_SAVE;
         });
     }
 }

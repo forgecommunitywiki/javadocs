@@ -1,5 +1,6 @@
 package fcw;
 
+import com.github.javaparser.ast.body.AnnotationMemberDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
@@ -38,6 +39,10 @@ public class ParserUtils {
         }
         builder.append(")V");
         return builder.toString();
+    }
+
+    public static String toDescriptor(SymbolResolver solver, AnnotationMemberDeclaration annotationMember) {
+        return "()" + toDescriptor(solver, annotationMember.getType());
     }
 
     public static String toDescriptor(SymbolResolver solver, Type type) {

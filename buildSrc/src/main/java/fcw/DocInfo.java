@@ -141,7 +141,7 @@ public class DocInfo {
         }
 
         private void writeJavadoc(JsonGenerator gen, Javadoc javadoc) throws IOException {
-            if (javadoc != null && !javadoc.getDescription().isEmpty() && !javadoc.getBlockTags().isEmpty()) {
+            if (javadoc != null && (!javadoc.getDescription().isEmpty() || !javadoc.getBlockTags().isEmpty())) {
                 gen.writeObjectFieldStart("javadoc");
 
                 if (!javadoc.getDescription().isEmpty()) {

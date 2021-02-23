@@ -24,7 +24,7 @@ allprojects {
                 "forge": "net.minecraftforge:forge:"
         ] as LinkedHashMap
 
-        DOCS_DIR = project.file('src/docs')
+        DOCS_DIR = rootProject.file('src/docs')
         DOC_FILE_EXTENSION = '.json'
     }
 }

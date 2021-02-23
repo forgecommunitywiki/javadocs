@@ -20,15 +20,26 @@ import fcw.IdentifyingVisitor;
 import fcw.ParserUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.logging.Logger;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.RecursiveAction;
+import java.util.function.Predicate;
 
 import static fcw.DocInfo.ClassInfo;
+import static java.nio.file.FileVisitResult.CONTINUE;
+import static java.nio.file.FileVisitResult.SKIP_SUBTREE;
 
 public class ApplyDocs extends DefaultTask {
     @Input public File docsDir;
@@ -40,7 +51,7 @@ public class ApplyDocs extends DefaultTask {
     public void act() throws IOException {
 
         SourceRoot sourceRoot = new SourceRoot(sourcesDir.toPath());
-        Path docsRoot = docsDir.toPath();
+        Path docsRoot = docsDir.toPath().toAbsolutePath();
 
         CombinedTypeSolver typeSolver = new CombinedTypeSolver();
         typeSolver.add(new ReflectionTypeSolver());
@@ -54,26 +65,88 @@ public class ApplyDocs extends DefaultTask {
             .setAttributeComments(true);
         sourceRoot.setPrinter(ParserUtils.PRINTER::print);
 
-        sourceRoot.parse("", (local, absolute, result) -> {
-            final CompilationUnit cu = result.getResult().orElseThrow(() -> new IllegalStateException(
-                "Compilation error for file " + local + " under " + docsRoot + ": " + result.getProblems()));
+        if (!Files.exists(docsRoot)) return;
+        DirectoryTraverse traverse = new DirectoryTraverse(getLogger(), docsRoot, (dir) -> true, (absolutePath, attrs) -> {
+            if (absolutePath.toString().endsWith(docFileExtension)) {
+                try {
+                    Path localPath = docsRoot.relativize(absolutePath);
+                    String pkg = localPath.getParent() != null
+                        ? localPath.getParent().toString().replace('/', '.')
+                        : "";
+                    String fileName = localPath.getFileName().toString().replaceFirst(docFileExtension, ".java");
 
-            Path docsFileLocal = local.getParent()
-                .resolve(local.getFileName().toString().replaceFirst("\\..*$", "") + docFileExtension);
-            Path docsFile = docsRoot.resolve(docsFileLocal);
+                    sourceRoot.parse(pkg, fileName, (local, absolute, result) -> {
+                        final CompilationUnit cu = result.getResult().orElseThrow(() -> new IllegalStateException(
+                            "Compilation error for file " + local + " under " + docsRoot + ": " + result.getProblems()));
 
-            if (Files.notExists(docsFile)) return Result.DONT_SAVE;
+                        DocInfo doc = DocInfo.read(absolutePath);
+                        if (doc.classes.isEmpty()) return Result.DONT_SAVE;
 
-            DocInfo doc = DocInfo.read(docsFile);
+                        ApplyDocsVisitor visitor = new ApplyDocsVisitor(symbolSolver, doc);
+                        visitor.visit(cu);
 
-            if (doc.classes.isEmpty()) return Result.DONT_SAVE;
-
-            ApplyDocsVisitor visitor = new ApplyDocsVisitor(symbolSolver, doc);
-
-            visitor.visit(cu);
-
-            return visitor.modified ? Result.SAVE : Result.DONT_SAVE;
+                        return visitor.modified ? Result.SAVE : Result.DONT_SAVE;
+                    });
+                } catch (IOException e) {
+                    getLogger().error("Exception while reading docs file " + absolutePath, e);
+                }
+            }
+            return CONTINUE;
         });
+        ForkJoinPool pool = new ForkJoinPool();
+        pool.invoke(traverse);
+    }
+
+    private static class DirectoryTraverse extends RecursiveAction {
+        private final Logger logger;
+        private final Path path;
+        private final Predicate<Path> dirChecker;
+        private final VisitFileCallback callback;
+
+        DirectoryTraverse(Logger logger, Path path, Predicate<Path> dirChecker, VisitFileCallback callback) {
+            this.logger = logger;
+            this.path = path;
+            this.dirChecker = dirChecker;
+            this.callback = callback;
+        }
+
+        @Override
+        protected void compute() {
+            final List<DirectoryTraverse> walks = new ArrayList<>();
+            try {
+                Files.walkFileTree(path, new SimpleFileVisitor<>() {
+                    @Override
+                    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+                        if (!dirChecker.test(dir)) {
+                            return SKIP_SUBTREE;
+                        }
+                        if (!dir.equals(DirectoryTraverse.this.path)) {
+                            DirectoryTraverse w = new DirectoryTraverse(logger, dir, dirChecker, callback);
+                            w.fork();
+                            walks.add(w);
+                            return SKIP_SUBTREE;
+                        } else {
+                            return CONTINUE;
+                        }
+                    }
+
+                    @Override
+                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+                        return callback.process(file, attrs);
+                    }
+                });
+            } catch (IOException e) {
+                logger.error("Exception while parallel traversing directory", e);
+            }
+
+            for (DirectoryTraverse w : walks) {
+                w.join();
+            }
+        }
+
+        interface VisitFileCallback {
+            FileVisitResult process(Path file, BasicFileAttributes attrs);
+        }
     }
 
     static class ApplyDocsVisitor extends IdentifyingVisitor {

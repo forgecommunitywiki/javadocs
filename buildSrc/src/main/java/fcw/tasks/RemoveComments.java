@@ -9,6 +9,8 @@ import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class RemoveComments extends DefaultTask {
     @Input public File directory;
@@ -25,10 +27,17 @@ public class RemoveComments extends DefaultTask {
             if (skipPackageInfo && localPath.getFileName().toString().endsWith("package-info.java")) {
                 return SourceRoot.Callback.Result.DONT_SAVE;
             }
-            result.ifSuccessful(compilationUnit -> compilationUnit.getAllComments().stream()
-                .filter(Comment::isJavadocComment)
-                .forEach(Comment::remove));
-            return SourceRoot.Callback.Result.SAVE;
+            return result.getResult()
+                .map(compilationUnit -> {
+                    final List<Comment> comments = compilationUnit.getAllComments().stream()
+                        .filter(Comment::isJavadocComment)
+                        .collect(Collectors.toList());
+                    if (!comments.isEmpty()) {
+                        comments.forEach(Comment::remove);
+                        return SourceRoot.Callback.Result.SAVE;
+                    }
+                    return SourceRoot.Callback.Result.DONT_SAVE;
+                }).orElse(SourceRoot.Callback.Result.DONT_SAVE);
         });
     }
 }

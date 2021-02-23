@@ -1,22 +1,26 @@
 package fcw.tasks;
 
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.PackageDeclaration;
 import com.github.javaparser.ast.body.AnnotationMemberDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.EnumConstantDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
+import com.github.javaparser.ast.comments.Comment;
 import com.github.javaparser.resolution.SymbolResolver;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JarTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 import com.github.javaparser.utils.SourceRoot;
-import fcw.DocInfo;
 import fcw.DocUtils;
 import fcw.IdentifyingVisitor;
 import fcw.ParserUtils;
+import fcw.info.DocInfo;
+import fcw.info.InfoHolder;
+import fcw.info.PackageInfo;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.tasks.Input;
@@ -27,9 +31,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.Optional;
 import java.util.stream.Stream;
 
-import static fcw.DocInfo.ClassInfo;
+import static fcw.info.DocInfo.ClassInfo;
 
 public class MakeDocs extends DefaultTask {
     @Input public File docsDir;
@@ -69,14 +74,30 @@ public class MakeDocs extends DefaultTask {
             final CompilationUnit cu = result.getResult().orElseThrow(() -> new IllegalStateException(
                 "Compilation error for file " + local + " under " + docsRoot + ": " + result.getProblems()));
 
-            DocInfo doc = new DocInfo();
+            InfoHolder info;
 
-            if (cu.getAllComments().isEmpty()) return SourceRoot.Callback.Result.DONT_SAVE;
+            if (local.toString().endsWith("package-info.java")) {
+                info = Optional.ofNullable(
+                    cu.getComment().filter(Comment::isJavadocComment)
+                        .orElseGet(() -> cu.getPackageDeclaration()
+                            .flatMap(PackageDeclaration::getComment)
+                            .filter(Comment::isJavadocComment)
+                            .orElse(null)
+                        ))
+                    .map(Comment::asJavadocComment)
+                    .map(DocUtils::parseComment)
+                    .map(PackageInfo::new)
+                    .orElse(null);
+            } else {
+                info = new DocInfo();
 
-            final MakeDocsVisitor visitor = new MakeDocsVisitor(symbolSolver, doc);
-            visitor.visit(cu);
+                if (cu.getAllComments().isEmpty()) return SourceRoot.Callback.Result.DONT_SAVE;
 
-            if (!doc.classes.isEmpty()) {
+                final MakeDocsVisitor visitor = new MakeDocsVisitor(symbolSolver, (DocInfo) info);
+                visitor.visit(cu);
+            }
+
+            if (info != null && !info.isEmpty()) {
                 Path docsFileLocal = local.getParent()
                     .resolve(local.getFileName().toString().replaceFirst("\\..*$", "") + docFileExtension);
                 Path docsFile = docsRoot.resolve(docsFileLocal);
@@ -90,7 +111,7 @@ public class MakeDocs extends DefaultTask {
                 } catch (IOException e) {
                     throw new RuntimeException("Exception while trying to create parent directories for file " + docsFile, e);
                 }
-                doc.write(docsFile);
+                info.write(docsFile);
             }
 
             return SourceRoot.Callback.Result.DONT_SAVE;

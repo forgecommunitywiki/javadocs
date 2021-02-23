@@ -167,6 +167,7 @@ project(':workspace') {
                 it.configuration = config
                 it.sourcesDir = sourceSet.java.srcDirs[0]
                 it.docFileExtension = DOC_FILE_EXTENSION
+                it.pkgInfoTemplate = rootProject.file('src/package-info-template.java')
             }
         }
     }

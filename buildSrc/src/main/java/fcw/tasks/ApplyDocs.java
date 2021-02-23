@@ -12,12 +12,14 @@ import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JarTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
+import com.github.javaparser.utils.CodeGenerationUtils;
 import com.github.javaparser.utils.SourceRoot;
 import com.github.javaparser.utils.SourceRoot.Callback.Result;
-import fcw.DocInfo;
+import fcw.info.DocInfo;
 import fcw.DocUtils;
 import fcw.IdentifyingVisitor;
 import fcw.ParserUtils;
+import fcw.info.PackageInfo;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.logging.Logger;
@@ -36,14 +38,17 @@ import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static fcw.DocInfo.ClassInfo;
+import static fcw.info.DocInfo.ClassInfo;
 import static java.nio.file.FileVisitResult.CONTINUE;
 import static java.nio.file.FileVisitResult.SKIP_SUBTREE;
 
 public class ApplyDocs extends DefaultTask {
     @Input public File docsDir;
     @Input public File sourcesDir;
+    @Input public File pkgInfoTemplate;
     @Input public Configuration configuration;
     @Input public String docFileExtension = ".json";
 
@@ -75,12 +80,35 @@ public class ApplyDocs extends DefaultTask {
                         : "";
                     String fileName = localPath.getFileName().toString().replaceFirst(docFileExtension, ".java");
 
+                    Path docFile = CodeGenerationUtils.fileInPackageAbsolutePath(sourceRoot.getRoot(), pkg, fileName);
+
+                    if (pkgInfoTemplate != null
+                        && !pkg.isEmpty()
+                        && fileName.endsWith("package-info.java")
+                        && Files.notExists(docFile)
+                        && pkgInfoTemplate.exists()) {
+                        try (Stream<String> lines = Files.lines(pkgInfoTemplate.toPath())) {
+                            Files.write(docFile, lines.map(str -> str.replace("${pkg}", pkg))
+                                .collect(Collectors.toList()));
+                        }
+                    }
+
                     sourceRoot.parse(pkg, fileName, (local, absolute, result) -> {
                         final CompilationUnit cu = result.getResult().orElseThrow(() -> new IllegalStateException(
                             "Compilation error for file " + local + " under " + docsRoot + ": " + result.getProblems()));
 
+                        if (fileName.endsWith("package-info.java")) {
+                            PackageInfo info = PackageInfo.read(absolutePath);
+                            if (!info.isEmpty()) {
+                                cu.setComment(DocUtils.createComment(info.javadoc));
+                                return Result.SAVE;
+                            }
+
+                            return Result.DONT_SAVE;
+                        }
+
                         DocInfo doc = DocInfo.read(absolutePath);
-                        if (doc.classes.isEmpty()) return Result.DONT_SAVE;
+                        if (doc.isEmpty()) return Result.DONT_SAVE;
 
                         ApplyDocsVisitor visitor = new ApplyDocsVisitor(symbolSolver, doc);
                         visitor.visit(cu);

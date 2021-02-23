@@ -30,7 +30,7 @@ public class CopySources extends DefaultTask {
             .orElseThrow(() -> new IllegalArgumentException("No source artifact found for " + artifact));
 
         if (destDir.exists() && !destDir.delete()) {
-            getLogger().warn("Unable to delete/clear source folder " + destDir);
+            throw new IllegalStateException("Unable to delete/clear source folder " + destDir);
         }
 
         getProject().copy(spec -> {

@@ -61,6 +61,10 @@ task assembleJavadocs(type: Javadoc, group: 'javadocs') {
     title "FCW: Javadocs"
     //source project.files('src/extra/')
 
+    javadocTool = javaToolchains.javadocToolFor {
+        languageVersion = JavaLanguageVersion.of(15)
+    }
+
     def opt = options.header("Forge (${minecraft_version}-${forge_version}; mappings ${mappings_channel}-${mappings_version})")
     opt.docTitle "FCW: Javadocs for Forge ${minecraft_version}-${forge_version}"
     opt.windowTitle "FCW: Javadocs [${minecraft_version}]"

@@ -29,6 +29,12 @@ ul.nav-list li {
     font-weight: bold;
 }
 
+.footer-license {
+    float: right;
+    height: 32px;
+    margin: 5px;
+}
+
 /*
  * Styles for individual HTML elements.
  *

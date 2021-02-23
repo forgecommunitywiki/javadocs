@@ -21,6 +21,8 @@ allprojects {
         SOURCES = [
                 "forge": "net.minecraftforge:forge:"
         ] as LinkedHashMap
+
+        DOCS_DIR = project.file('src/docs')
     }
 }
 
@@ -48,6 +50,11 @@ task applyDocs(group: 'javadocs', dependsOn: removeComments) {
 
 task setup(group: 'javadocs', dependsOn: [clearSources, copySources, applyDocs]) {
     description 'Sets up the javadocs workspace'
+}
+
+task assembleJavadocs(type: Javadoc, group: 'javadocs') {
+    description 'Assembles the javadocs from all source sets'
+    destinationDir project.file('out')
 }
 
 project(':workspace') {
@@ -86,12 +93,17 @@ project(':workspace') {
                 dependencies.add(sourceSet.implementationConfigurationName, it)
             }
 
+            assembleJavadocs {
+                classpath += configurations.minecraft.incoming.files
+                source sourceSet.java.srcDirs[0]
+            }
+
             def writeDocsTask = project.getTasks().create("write" + sourceSetName.capitalize() + "Docs", MakeDocs.class)
             writeDocs.dependsOn writeDocsTask
             writeDocsTask.configure {
                 it.group 'javadocs'
                 it.description "Write out doc files for source set '${sourceSetName}'"
-                it.docsDir = rootProject.file('src/docs')
+                it.docsDir = DOCS_DIR
                 it.configuration = config
                 it.sourcesDir = sourceSet.java.srcDirs[0]
             }
@@ -129,7 +141,7 @@ project(':workspace') {
                 it.group 'javadocs'
                 it.description "Apply javadocs from doc files for source set '${sourceSetName}'"
                 it.dependsOn removeCommentsTask
-                it.docsDir = rootProject.file('src/docs')
+                it.docsDir = DOCS_DIR
                 it.configuration = config
                 it.sourcesDir = sourceSet.java.srcDirs[0]
             }

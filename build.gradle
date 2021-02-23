@@ -155,7 +155,8 @@ project(':workspace') {
                 it.group 'javadocs'
                 it.description "Remove javadoc comments from source files for source set '${sourceSetName}'"
                 it.shouldRunAfter copySourcesTask
-                it.directory = sourceSet.java.srcDirs[0]
+                it.sourcesDir = sourceSet.java.srcDirs[0]
+                it.configuration = config
             }
 
             def applyDocsTask = project.getTasks().create("apply" + sourceSetName.capitalize() + "Docs", ApplyDocs.class)

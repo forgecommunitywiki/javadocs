@@ -2,3 +2,4 @@
 -charset UTF-8
 -Xdoclint:syntax,reference,html
 -footer "<a href=\"https://creativecommons.org/licenses/by/4.0/\"><img src=\"{@docRoot}/resources/cc-by-4.0.svg\" class=\"footer-license\" title=\"Licensed under the Creative Commons Attribution 4.0 International license.\"></a>"
+-link http://docs.oracle.com/javase/8/docs/api/

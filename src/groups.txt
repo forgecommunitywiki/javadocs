@@ -1,0 +1,6 @@
+
+-group "Minecraft" "net.minecraft.*"
+-group "MinecraftForge" "net.minecraftforge*"
+-group "MCP" "mcp*"
+-group "Blaze3D" "com.mojang.blaze3d*"
+-group "Realms Client" "com.mojang.realms*"

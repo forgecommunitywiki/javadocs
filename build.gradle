@@ -9,6 +9,8 @@ buildscript {
     }
 }
 
+apply plugin: 'java'
+
 import fcw.tasks.*
 
 import java.util.stream.Collectors
@@ -23,6 +25,7 @@ allprojects {
         ] as LinkedHashMap
 
         DOCS_DIR = project.file('src/docs')
+        DOC_FILE_EXTENSION = '.json'
     }
 }
 
@@ -55,6 +58,23 @@ task setup(group: 'javadocs', dependsOn: [clearSources, copySources, applyDocs])
 task assembleJavadocs(type: Javadoc, group: 'javadocs') {
     description 'Assembles the javadocs from all source sets'
     destinationDir project.file('out')
+    title "FCW: Javadocs"
+    //source project.files('src/extra/')
+
+    def opt = options.header("Forge (${minecraft_version}-${forge_version}; mappings ${mappings_channel}-${mappings_version})")
+    opt.docTitle "FCW: Javadocs for Forge ${minecraft_version}-${forge_version}"
+    opt.windowTitle "FCW: Javadocs [${minecraft_version}]"
+    opt.groupsFile project.file("src/groups.txt")
+    opt.optionFiles project.file("src/options.txt")
+    opt.stylesheetFile project.file("src/style.css")
+    opt.docFilesSubDirs true
+
+    doLast {
+        project.copy {
+            from project.file("src/extra")
+            into project.file('out')
+        }
+    }
 }
 
 project(':workspace') {
@@ -106,6 +126,7 @@ project(':workspace') {
                 it.docsDir = DOCS_DIR
                 it.configuration = config
                 it.sourcesDir = sourceSet.java.srcDirs[0]
+                it.docFileExtension = DOC_FILE_EXTENSION
             }
 
             def clearSourcesTask = project.getTasks().create("clear" + sourceSetName.capitalize() + "Sources", Delete.class)
@@ -113,7 +134,9 @@ project(':workspace') {
             clearSourcesTask.configure {
                 it.group 'javadocs'
                 it.description "Clears source folder for source set '${sourceSetName}'"
-                it.delete sourceSet.java.srcDirs[0]
+                it.delete project.fileTree(sourceSet.java.srcDirs[0]) {
+                    include '**/*' + DOC_FILE_EXTENSION
+                }
             }
 
             def copySourcesTask = project.getTasks().create("copy" + sourceSetName.capitalize() + "Sources", CopySources.class)
@@ -144,6 +167,7 @@ project(':workspace') {
                 it.docsDir = DOCS_DIR
                 it.configuration = config
                 it.sourcesDir = sourceSet.java.srcDirs[0]
+                it.docFileExtension = DOC_FILE_EXTENSION
             }
         }
     }

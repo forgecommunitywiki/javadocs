@@ -12,12 +12,12 @@ The generated docs are available here: [website](https://forgecommunitywiki.gith
 
 ## Contributing
 Contributing to the project is easy, just follow these steps:
-1. **Fork** the reprository and clone it to your local machine.
-2. In the repository folder, run the gradle task `sourcedDoxygen`.
-   - for **Windows**: Open a command prompt, then run `gradlew sourcedDoxygen`.
-   - for **\*nix** systems: Open a terminal, then run `./gradlew sourcedDoxygen`.
-3. Add or modify the documentation files in the `src/docs` folder.
-   - To check the results of your changes, run the `sourcedDoxygen` task again and see the outputs in `out/html`.
+1. **Fork** the repository and clone it to your local machine.
+2. In the repository folder, run the gradle tasks `setup` to setup the javadocs workspace.
+   - for **Windows**: Open a command prompt, then run `gradlew setup`.
+   - for **\*nix** systems: Open a terminal, then run `./gradlew setup`.
+3. Add or modify the javadocs comments for the source files under `workspace/src/forge/java`.
+   - To check the results of your changes, run the `assembleJavadocs` task again and see the outputs in `out`.
 4. Commit and push your changes to your fork, then make a Pull Request to the main repository on GitHub.
 
 Your PR will be reviewed by the maintainers or members of the triage team. We welcome any contribution, big or small, so do not fear making a PR for e.g. a spelling correction (though we do prefer if you gather a lot of corrections into one PR).
@@ -26,6 +26,3 @@ Your PR will be reviewed by the maintainers or members of the triage team. We we
 This project and its files are licensed under [Creative Commons Attribution 4.0](https://creativecommons.org/licenses/by/4.0/) (see the `LICENSE.txt` file for the full legal text).
 
 By contributing to this project, you agree to have your contributions stored and distributed under the same license.
-
-### Contributors
-Be the first to get your name here!

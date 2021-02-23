@@ -142,7 +142,7 @@ public class ApplyDocs extends DefaultTask {
         protected void compute() {
             final List<DirectoryTraverse> walks = new ArrayList<>();
             try {
-                Files.walkFileTree(path, new SimpleFileVisitor<>() {
+                Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
                     @Override
                     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
                         if (!dirChecker.test(dir)) {

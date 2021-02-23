@@ -1,19 +1,13 @@
 package fcw.tasks;
 
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.NodeList;
-import com.github.javaparser.ast.body.AnnotationDeclaration;
 import com.github.javaparser.ast.body.AnnotationMemberDeclaration;
-import com.github.javaparser.ast.body.BodyDeclaration;
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.EnumConstantDeclaration;
-import com.github.javaparser.ast.body.EnumDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
-import com.github.javaparser.ast.expr.ObjectCreationExpr;
-import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
+import com.github.javaparser.resolution.SymbolResolver;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JarTypeSolver;
@@ -21,6 +15,7 @@ import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeS
 import com.github.javaparser.utils.SourceRoot;
 import fcw.DocInfo;
 import fcw.DocUtils;
+import fcw.IdentifyingVisitor;
 import fcw.ParserUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.artifacts.Configuration;
@@ -32,7 +27,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import static fcw.DocInfo.ClassInfo;
@@ -71,7 +65,7 @@ public class MakeDocs extends DefaultTask {
             .setAttributeComments(true);
         sourceRoot.setPrinter(ParserUtils.PRINTER::print);
 
-        sourceRoot.parse("", (local, absolute, result) -> {
+        sourceRoot.parseParallelized((local, absolute, result) -> {
             final CompilationUnit cu = result.getResult().orElseThrow(() -> new IllegalStateException(
                 "Compilation error for file " + local + " under " + docsRoot + ": " + result.getProblems()));
 
@@ -79,18 +73,8 @@ public class MakeDocs extends DefaultTask {
 
             if (cu.getAllComments().isEmpty()) return SourceRoot.Callback.Result.DONT_SAVE;
 
-            AtomicInteger anonClassCount = new AtomicInteger(1);
-            for (TypeDeclaration<?> type : cu.getTypes()) {
-                final String fqn = ParserUtils.toFQN(type.resolve());
-
-                type.getJavadocComment().map(DocUtils::parseComment).ifPresent(javadoc -> {
-                    ClassInfo classInfo = new ClassInfo(fqn);
-                    classInfo.javadoc = javadoc;
-                    doc.classes.put(fqn, classInfo);
-                });
-
-                visitBodyDeclarations(fqn, type.getMembers(), doc, symbolSolver, anonClassCount);
-            }
+            final MakeDocsVisitor visitor = new MakeDocsVisitor(symbolSolver, doc);
+            visitor.visit(cu);
 
             if (!doc.classes.isEmpty()) {
                 Path docsFileLocal = local.getParent()
@@ -113,90 +97,81 @@ public class MakeDocs extends DefaultTask {
         });
     }
 
-    private void visitBodyDeclarations(String fqn, NodeList<BodyDeclaration<?>> nodeList, DocInfo doc,
-        JavaSymbolSolver symbolSolver, AtomicInteger anonymousClassCount) {
+    static class MakeDocsVisitor extends IdentifyingVisitor {
+        private final DocInfo doc;
 
-        for (BodyDeclaration<?> bodyDecl : nodeList) {
-            if (bodyDecl instanceof FieldDeclaration) {
-                FieldDeclaration field = (FieldDeclaration) bodyDecl;
+        public MakeDocsVisitor(SymbolResolver resolver, DocInfo doc) {
+            super(resolver);
+            this.doc = doc;
+        }
 
-                field.getJavadocComment().map(DocUtils::parseComment).ifPresent(javadoc -> {
-                    ClassInfo info = doc.classes.computeIfAbsent(fqn, ClassInfo::new);
+        @Override
+        protected void visitClass(TypeDeclaration<?> n, VisitContext ctx) {
+            n.getJavadocComment().map(DocUtils::parseComment).ifPresent(javadoc -> {
+                ClassInfo classInfo = new ClassInfo(ctx.getQualifiedName());
+                classInfo.javadoc = javadoc;
+                doc.classes.put(classInfo.name, classInfo);
+            });
+        }
 
-                    ClassInfo.FieldInfo fieldInfo = new ClassInfo.FieldInfo(field.resolve().getName());
-                    fieldInfo.javadoc = javadoc;
+        @Override
+        protected void visitEnumConstant(EnumConstantDeclaration n, VisitContext ctx) {
+            n.getJavadocComment().map(DocUtils::parseComment).ifPresent(javadoc -> {
+                ClassInfo info = doc.classes.computeIfAbsent(ctx.getQualifiedName(), ClassInfo::new);
 
-                    info.fields.put(fieldInfo.name, fieldInfo);
-                });
-            } else if (bodyDecl instanceof EnumConstantDeclaration) {
-                EnumConstantDeclaration enumConstant = (EnumConstantDeclaration) bodyDecl;
+                ClassInfo.FieldInfo fieldInfo = new ClassInfo.FieldInfo(n.resolve().getName());
+                fieldInfo.javadoc = javadoc;
 
-                enumConstant.getJavadocComment().map(DocUtils::parseComment).ifPresent(javadoc -> {
-                    ClassInfo info = doc.classes.computeIfAbsent(fqn, ClassInfo::new);
+                info.fields.put(fieldInfo.name, fieldInfo);
+            });
+        }
 
-                    ClassInfo.FieldInfo fieldInfo = new ClassInfo.FieldInfo(enumConstant.resolve().getName());
-                    fieldInfo.javadoc = javadoc;
+        @Override
+        protected void visitField(FieldDeclaration n, VisitContext ctx) {
+            n.getJavadocComment().map(DocUtils::parseComment).ifPresent(javadoc -> {
+                ClassInfo info = doc.classes.computeIfAbsent(ctx.getQualifiedName(), ClassInfo::new);
 
-                    info.fields.put(fieldInfo.name, fieldInfo);
-                });
-            } else if (bodyDecl instanceof MethodDeclaration) {
-                MethodDeclaration method = (MethodDeclaration) bodyDecl;
+                ClassInfo.FieldInfo fieldInfo = new ClassInfo.FieldInfo(n.resolve().getName());
+                fieldInfo.javadoc = javadoc;
 
-                method.getJavadocComment().map(DocUtils::parseComment).ifPresent(javadoc -> {
-                    ClassInfo info = doc.classes.computeIfAbsent(fqn, ClassInfo::new);
+                info.fields.put(fieldInfo.name, fieldInfo);
+            });
+        }
 
-                    ClassInfo.MethodInfo methodInfo = new ClassInfo.MethodInfo(
-                        method.getNameAsString(), ParserUtils.toDescriptor(symbolSolver, method));
-                    methodInfo.javadoc = javadoc;
+        @Override
+        protected void visitMethod(MethodDeclaration n, String descriptor, VisitContext ctx) {
+            n.getJavadocComment().map(DocUtils::parseComment).ifPresent(javadoc -> {
+                ClassInfo info = doc.classes.computeIfAbsent(ctx.getQualifiedName(), ClassInfo::new);
 
-                    info.methods.put(methodInfo.name + " " + methodInfo.descriptor, methodInfo);
-                });
-            } else if (bodyDecl instanceof ConstructorDeclaration) {
-                ConstructorDeclaration constructor = (ConstructorDeclaration) bodyDecl;
+                ClassInfo.MethodInfo methodInfo = new ClassInfo.MethodInfo(n.getNameAsString(), descriptor);
+                methodInfo.javadoc = javadoc;
 
-                constructor.getJavadocComment().map(DocUtils::parseComment).ifPresent(javadoc -> {
-                    ClassInfo info = doc.classes.computeIfAbsent(fqn, ClassInfo::new);
+                info.methods.put(methodInfo.name + " " + methodInfo.descriptor, methodInfo);
+            });
+        }
 
-                    ClassInfo.MethodInfo methodInfo = new ClassInfo.MethodInfo(
-                        constructor.getNameAsString(), ParserUtils.toDescriptor(symbolSolver, constructor));
-                    methodInfo.javadoc = javadoc;
+        @Override
+        protected void visitConstructor(ConstructorDeclaration n, String descriptor, VisitContext ctx) {
+            n.getJavadocComment().map(DocUtils::parseComment).ifPresent(javadoc -> {
+                ClassInfo info = doc.classes.computeIfAbsent(ctx.getQualifiedName(), ClassInfo::new);
 
-                    info.methods.put(methodInfo.name + " " + methodInfo.descriptor, methodInfo);
-                });
-            } else if (bodyDecl instanceof AnnotationMemberDeclaration) {
-                AnnotationMemberDeclaration annotationMember = (AnnotationMemberDeclaration) bodyDecl;
+                ClassInfo.MethodInfo methodInfo = new ClassInfo.MethodInfo(n.getNameAsString(), descriptor);
+                methodInfo.javadoc = javadoc;
 
-                annotationMember.getJavadocComment().map(DocUtils::parseComment).ifPresent(javadoc -> {
-                    ClassInfo info = doc.classes.computeIfAbsent(fqn, ClassInfo::new);
+                info.methods.put(methodInfo.name + " " + methodInfo.descriptor, methodInfo);
+            });
+        }
 
-                    ClassInfo.MethodInfo methodInfo = new ClassInfo.MethodInfo(
-                        annotationMember.getNameAsString(), ParserUtils.toDescriptor(symbolSolver, annotationMember));
-                    methodInfo.javadoc = javadoc;
+        @Override
+        protected void visitAnnotationMember(AnnotationMemberDeclaration n, String descriptor, VisitContext ctx) {
+            n.getJavadocComment().map(DocUtils::parseComment).ifPresent(javadoc -> {
+                ClassInfo info = doc.classes.computeIfAbsent(ctx.getQualifiedName(), ClassInfo::new);
 
-                    info.methods.put(methodInfo.name + " " + methodInfo.descriptor, methodInfo);
-                });
-            }
-            bodyDecl.accept(new VoidVisitorAdapter<Void>() {
-                @Override
-                public void visit(ObjectCreationExpr expr, Void arg) {
-                    expr.getAnonymousClassBody().ifPresent(nodes -> {
-                        String anonFQN = fqn + "$" + anonymousClassCount.getAndIncrement();
+                ClassInfo.MethodInfo methodInfo = new ClassInfo.MethodInfo(n.getNameAsString(), descriptor);
+                methodInfo.javadoc = javadoc;
 
-                        visitBodyDeclarations(anonFQN, nodes, doc, symbolSolver, new AtomicInteger(1));
-
-                    });
-                    super.visit(expr, arg);
-                }
-
-                @Override
-                public void visit(ClassOrInterfaceDeclaration n, Void arg) {} // No-op to not recurse within
-
-                @Override
-                public void visit(EnumDeclaration n, Void arg) {} // No-op to not recurse within
-
-                @Override
-                public void visit(AnnotationDeclaration n, Void arg) {} // No-op to not recurse within
-            }, null);
+                info.methods.put(methodInfo.name + " " + methodInfo.descriptor, methodInfo);
+            });
         }
     }
 }

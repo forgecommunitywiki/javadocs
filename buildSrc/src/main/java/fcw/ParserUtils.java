@@ -23,10 +23,6 @@ public class ParserUtils {
         );
     }
 
-    public static String toFQN(ClassOrInterfaceDeclaration type) {
-        return toFQN(type.resolve());
-    }
-
     public static String toFQN(ResolvedReferenceTypeDeclaration decl) {
         String pkg = decl.getPackageName();
         return (pkg.isEmpty() ? "" : pkg + ".") + decl.getClassName().replace('.', '$');

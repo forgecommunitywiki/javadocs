@@ -134,9 +134,7 @@ project(':workspace') {
             clearSourcesTask.configure {
                 it.group 'javadocs'
                 it.description "Clears source folder for source set '${sourceSetName}'"
-                it.delete project.fileTree(sourceSet.java.srcDirs[0]) {
-                    include '**/*' + DOC_FILE_EXTENSION
-                }
+                it.delete sourceSet.java.srcDirs[0]
             }
 
             def copySourcesTask = project.getTasks().create("copy" + sourceSetName.capitalize() + "Sources", CopySources.class)

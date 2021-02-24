@@ -31,7 +31,7 @@ public class DocUtils {
         return javadoc;
     }
 
-    public static List<File> filter(File sourceDir, File docsDir, String docFileExtension) throws IOException {
+    public static List<File> filter(File sourceDir, File docsDir, String docFileExtension) {
         Path sourcePath = sourceDir.toPath();
         Path docsPath = docsDir.toPath();
         try (Stream<Path> paths = Files.walk(sourcePath)) {
@@ -42,6 +42,8 @@ public class DocUtils {
                 ))
                 .map(Path::toFile)
                 .collect(Collectors.toList());
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to filter undocumented classes from javadoc generation", e);
         }
     }
 }

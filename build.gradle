@@ -12,6 +12,7 @@ buildscript {
 apply plugin: 'java'
 
 import fcw.tasks.*
+import fcw.DocUtils
 
 import java.util.stream.Collectors
 
@@ -119,7 +120,7 @@ project(':workspace') {
 
             assembleJavadocs {
                 classpath += configurations.minecraft.incoming.files
-                source sourceSet.java.srcDirs[0]
+                source DocUtils.filter(sourceSet.java.srcDirs[0], DOCS_DIR, DOC_FILE_EXTENSION)
             }
 
             def writeDocsTask = project.getTasks().create("write" + sourceSetName.capitalize() + "Docs", MakeDocs.class)

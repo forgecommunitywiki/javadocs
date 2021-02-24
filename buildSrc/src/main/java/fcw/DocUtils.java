@@ -4,6 +4,13 @@ import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.comments.JavadocComment;
 import com.github.javaparser.javadoc.Javadoc;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 
 public class DocUtils {
@@ -22,5 +29,19 @@ public class DocUtils {
             return null;
         }
         return javadoc;
+    }
+
+    public static List<File> filter(File sourceDir, File docsDir, String docFileExtension) throws IOException {
+        Path sourcePath = sourceDir.toPath();
+        Path docsPath = docsDir.toPath();
+        try (Stream<Path> paths = Files.walk(sourcePath)) {
+            return paths
+                .filter(Files::isRegularFile)
+                .filter(srcFile -> Files.exists(
+                    docsPath.resolve(sourcePath.relativize(srcFile).toString().replace(".java", docFileExtension))
+                ))
+                .map(Path::toFile)
+                .collect(Collectors.toList());
+        }
     }
 }

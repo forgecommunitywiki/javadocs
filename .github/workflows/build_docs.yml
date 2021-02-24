@@ -1,18 +1,20 @@
-name: Build Documentation
+name: Assemble Documentation
 on:
+  workflow_dispatch:
   push:
     branches:
       - 'master'
       - '[0-9]+.[0-9]+.x'
 
 jobs:
-  build:
+  assemble:
     runs-on: ubuntu-latest
     env:
       SHA8: ${GITHUB_SHA::8}
 
     steps:
-# Setup
+
+      # Setup
 
       - name: Checkout repo
         uses: actions/checkout@v2
@@ -20,53 +22,20 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
-      - name: Set up JDK 8
+      - name: Set up JDK 15
         uses: actions/setup-java@v1
         with:
-          java-version: 1.8
-
-# Version info
+          java-version: 15
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Gradle Get version
-        uses: eskatos/gradle-command-action@v1
-        with:
-          arguments: retrieveVersion -q
-          wrapper-cache-enabled: true
-          dependencies-cache-enabled: true
-
-      # - name: Retrieve versions from ForgeDev
-      #   run: ./gradlew retrieveVersion -q
-
-      - name: Extract Forge version
-        id: forge_version
-        uses: notiz-dev/github-action-json-property@release
-        with:
-          path: 'build/forge_version.json'
-          prop_path: 'forge_version'
-
-      - name: Extract mapping channel
-        id: mapping_channel
-        uses: notiz-dev/github-action-json-property@release
-        with:
-          path: 'build/forge_version.json'
-          prop_path: 'mapping_channel'
-
-      - name: Extract mapping version
-        id: mapping_version
-        uses: notiz-dev/github-action-json-property@release
-        with:
-          path: 'build/forge_version.json'
-          prop_path: 'mapping_version'
-
-      - name: Extract mc version
+      - name: Extract main Minecraft version
         id: mc_main_version
-        uses: notiz-dev/github-action-json-property@release
+        uses: christian-draeger/read-properties@1.0.1
         with:
-          path: 'build/forge_version.json'
-          prop_path: 'mc_main_version'
+          path: 'gradle.properties'
+          property: 'mc_main_version'
 
       - name: Get short SHA
         id: slug
@@ -77,49 +46,36 @@ jobs:
         shell: bash
         run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
 
-# Sources extract
-
-      - name: Load Cache
-        id: cache
+      - name: Load gradle cache
         uses: actions/cache@v2
         with:
-          path: ./.java
-          key: ${{ steps.forge_version.outputs.prop }}-sources
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
-      - name: Generate and copy sources using Gradle
-        if: steps.cache.outputs.cache-hit != 'true'
+      # Create javadocs
+
+      - name: Setup javadocs workspace
         uses: eskatos/gradle-command-action@v1
         with:
-          arguments: copySources -q
+          arguments: setup
           wrapper-cache-enabled: true
           dependencies-cache-enabled: true
 
-# Doxygen the docs
-
-      - name: Make folder
-        run: mkdir -p ./out/html/${{ steps.mc_main_version.outputs.prop }}
-
-      - name: Build documentation using Doxygen
-        uses: mattnotmitt/doxygen-action@v1.2.0
-        env:
-          FORGE_VERSION: ${{ steps.forge_version.outputs.prop }}
-          MAPPING_VERSION: ${{ steps.mapping_version.outputs.prop }}
-          MAPPING_CHANNEL: ${{ steps.mapping_channel.outputs.prop }}
-          MC_MAIN_VERSION: ${{ steps.mc_main_version.outputs.prop }}
+      - name: Assemble javadocs
+        uses: eskatos/gradle-command-action@v1
         with:
-          working-directory: './'
-          doxyfile-path: './Doxyfile'
+          arguments: assembleJavadocs
+          wrapper-cache-enabled: true
+          dependencies-cache-enabled: true
 
-      - name: copy file
-        uses: canastro/copy-file-action@master
-        with:
-          source: "src/web/version.js"
-          target: "out/html/version.js"
-
-      - name: Deploy to GitHub pages
+      - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./out/html/${{ steps.mc_main_version.outputs.prop }}
+          publish_dir: ./out/
           destination_dir: ./${{ steps.mc_main_version.outputs.prop }}
-          full_commit_message: Docs[${{ steps.extract_branch.outputs.branch }} - ${{ steps.slug.outputs.sha8 }}] ${{ github.event.head_commit.message }}
+          full_commit_message: Docs[${{ steps.slug.outputs.sha8 }}@${{ steps.extract_branch.outputs.branch }}] ${{ github.event.head_commit.message }}

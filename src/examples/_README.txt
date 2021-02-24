@@ -1,1 +1,0 @@
-This file exists only to ensure this directory is created by git.

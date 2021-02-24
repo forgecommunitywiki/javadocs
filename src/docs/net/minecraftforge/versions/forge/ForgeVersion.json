@@ -1,0 +1,94 @@
+[
+    {
+        "name" : "net.minecraftforge.versions.forge.ForgeVersion",
+        "javadoc" : {
+            "description" : [
+                "Holds the version information for Minecraft Forge."
+            ]
+        },
+        "fields" : [
+            {
+                "name" : "LOGGER",
+                "javadoc" : {
+                    "description" : [
+                        "The private logger for this class."
+                    ]
+                }
+            }
+        ],
+        "methods" : [
+            {
+                "name" : "getVersion",
+                "descriptor" : "()Ljava/lang/String;",
+                "javadoc" : {
+                    "description" : [
+                        "Returns the current implementation version of Minecraft Forge.",
+                        "<p>",
+                        "This is retrieved from the {@code Implementation-Version} from the manifest of the JAR where this class resides in. If",
+                        "that does not exist, then the version is taken from the {@code FORGE_VERSION} {@link System#getenv(String)} environment",
+                        "variable} (If those do not exist, then a {@link RuntimeException} will be thrown)."
+                    ],
+                    "tags" : {
+                        "return" : "The implementation version of Minecraft Forge"
+                    }
+                }
+            },
+            {
+                "name" : "getStatus",
+                "descriptor" : "()Lnet/minecraftforge/fml/VersionChecker/Status;",
+                "javadoc" : {
+                    "description" : [
+                        "Returns the {@link VersionChecker.Status} for the {@link net.minecraftforge.common.ForgeMod Forge mod}."
+                    ],
+                    "tags" : {
+                        "return" : "The version checker status for the Forge mod"
+                    }
+                }
+            },
+            {
+                "name" : "getTarget",
+                "descriptor" : "()Ljava/lang/String;",
+                "javadoc" : {
+                    "description" : [
+                        "Returns the more up-to-date version found by the {@link VersionChecker}, or a blank string if none is found."
+                    ],
+                    "tags" : {
+                        "return" : "The more up-to-date remote version, or a blank string"
+                    }
+                }
+            },
+            {
+                "name" : "getSpec",
+                "descriptor" : "()Ljava/lang/String;",
+                "javadoc" : {
+                    "description" : [
+                        "Returns the current specification version of Forge Mod Loader.",
+                        "<p>",
+                        "This is retrieved from the {@code Specification-Version} from the manifest of the JAR where this class resides in. If",
+                        "that does not exist, then the version is taken from the {@code FORGE_SPEC} {@link System#getenv(String) environment",
+                        "variable} (If those do not exist, then a {@link RuntimeException} will be thrown)."
+                    ],
+                    "tags" : {
+                        "return" : "The specification version of Minecraft forge"
+                    }
+                }
+            },
+            {
+                "name" : "getGroup",
+                "descriptor" : "()Ljava/lang/String;",
+                "javadoc" : {
+                    "description" : [
+                        "Returns the group of the currently running Minecraft Forge implementation.",
+                        "<p>",
+                        "This is retrieved from the {@code Implementation-Title} from the manifest of the JAR where this class resides in. If",
+                        "that does not exist, then the version is taken from the {@code FORGE_GROUP} {@link System#getenv(String) environment",
+                        "variable}. If those do not exist, then the group will default to {@code net.minecraftforge}."
+                    ],
+                    "tags" : {
+                        "return" : "The group for the running Minecraft Forge implementation"
+                    }
+                }
+            }
+        ]
+    }
+]

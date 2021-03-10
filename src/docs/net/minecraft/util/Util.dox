@@ -1,0 +1,592 @@
+/**
+ * @class net.minecraft.util.Util
+ *
+ * Miscellaneous utility class for methods which are not numerous/common enough for a dedicated utility subclass.
+ *
+ * @author Mojang
+ */
+
+/**
+ * @var public static LongSupplier Util::nanoTimeSupplier
+ *
+ * A long supplier that returns the current value of the JVM's time source in nanoseconds.
+ *
+ * The default supplier returns the value of @ref System#nanoTime().
+ * The value is not related to system or wall-clock time. It only measures the time in nanoseconds since some arbitrary
+ * "origin" time. All invocations of this method within a JVM instance will return from the same time-source and origin time.
+ */
+
+/**
+ * @var public static final UUID Util::DUMMY_UUID
+ *
+ * The <em>nil UUID</em>, a @ref UUID constant with all 128 bits set to @c 0.
+ *
+ * This can be used in place of @c null in UUID fields, to represent a missing UUID.
+ * This is not a valid UUID according to RFC 4122 technical specification, due to the missing UUID version bits.
+ * However, section 4.1.7 "Nil UUID" of the RFC provides for the <em>nil UUID</em>:
+ * <em>"The nil UUID is special form of UUID that is specified to have all 128 bits set to zero."</em>
+ *
+ * This is used as the sender's UUID in system chat messages.
+ *
+ * @see <a href="https://tools.ietf.org/html/rfc4122" target="_top">RFC 4122,
+ *      <em>A Universally Unique IDentifier (UUID) URN Namespace</em></a>
+ */
+
+/**
+ * @fn Util::toMapCollector()
+ *
+ * Returns a @ref Stream collector for converting <tt>Stream<Map.Entry<? extend K, ? extends V>></tt> to a <tt>Map<K, V></tt>.
+ *
+ * <em>Full method signature: </em>
+ * <tt>public <K, V> Collector<Entry<? extends K, ? extends V>, ?, Map<K, V>> Util::toMapCollector()</tt>
+ *
+ * @return A collector for <tt>Stream<Map.Entry<? extend K, ? extends V>></tt> to <tt>Map<K, V></tt>
+ */
+
+/**
+ * @fn Util::getValueName(Property<T> property, Object value)
+ *
+ * Returns the name of the given value for the property.
+ *
+ * <em>Full method signature: </em>
+ * <tt>public static <T extends Comparable<T>> String Util::getValueName(Property<T> property, Object value)</tt>
+ *
+ * @throws ClassCastException If the type of @p value is not of the generic type @c T of @p property
+ * @return The name of the value for the property
+ */
+
+/**
+ * @fn public static String Util::makeTranslationKey(String type, ResourceLocation id)
+ *
+ * Creates a translation key for the given nullable @ref ResourceLocation based on the given type.
+ *
+ * If the @p id parameter is @c null, then the returned translation key will be <tt>type + ".unregistered_sadface"</tt>.
+ *
+ * Otherwise, it creates the translation key using the following process:
+ * <tt>type + '.' + id.@link ResourceLocation#getNamespace() getNamespace()@endlink + '.' +
+ * id.@link ResourceLocation#getPath() getPath()@endlink.replace('/', '.')</tt>
+ *
+ * @param type The type of the translation key
+ * @param id The resource location for the translation key, may be @c null
+ * @test For inputs <tt>"block"</tt> and <tt>new ResourceLocation("test_block")</tt>,
+ *       output should be <tt>"block.minecraft.test_block"</tt>. <br>
+ *       For inputs <tt>"item"</tt> and <tt>new ResourceLocation("forge", "items/debug_item")</tt>,
+ *       output should be <tt>"item.forge.items.debug_item"</tt>. <br>
+ *       For inputs <tt>"entity"</tt> and @c null,
+ *       output should be <tt>"entity.unregistered_sadface"</tt>.
+ * @return The resulting newly-created translation key
+ */
+
+/**
+ * @fn public static long Util::milliTime()
+ *
+ * Returns the current value of the JVM's time source in milliseconds.
+ * This is equivalent to calling <tt>Util.@ref nanoTime() / 1000000L</tt>
+ *
+ * @return The current value of the JVM time source in milliseconds.
+ */
+
+/**
+ * @fn public static long Util::nanoTime()
+ *
+ * Returns the current value of the JVM's time source in nanoseconds.
+ * This is equivalent to calling <tt>Util.@link Util#nanoTimeSupplier nanoTimeSupplier@endlink&zwnj;.getAsLong()</tt>.
+ *
+ * @return The current value of the JVM time source in nanoseconds
+ */
+
+/**
+ * @fn public static long Util::millisecondsSinceEpoch()
+ *
+ * Returns the current system time in milliseconds since the Unix epoch.
+ *
+ * The Unix epoch is defined as 1970-01-01T00:00:00, and is the basis of Unix time: the seconds elapsed since the Unix epoch.
+ *
+ * @return The current system Unix time in milliseconds
+ */
+
+/**
+ * @fn public static Executor Util::getBootstrapService()
+ *
+ * Returns the bootstrap executor service.
+ *
+ * This executor is used when building the main @ref DataFixer of the @ref DataFixesManager.
+ *
+ * @return The bootstrap executor service
+ * @see DataFixesManager#getDataFixer()
+ */
+
+/**
+ * @fn public static Executor Util::getServerExecutor()
+ *
+ * Returns the server executor service.
+ *
+ * This executor is used for execution of background tasks, such as resource pack loading and skin texture downloading.
+ *
+ * @return The server executor service
+ */
+
+/**
+ * @fn public static Executor Util::getRenderingService()
+ *
+ * Returns the rendering executor service.
+ *
+ * This executor is used for IO operations, such as writing the world icon and screenshots to the disk.
+ *
+ * @return The rendering executor service.
+ */
+
+/**
+ * @fn public static void Util::shutdown()
+ *
+ * Shutdowns the @link #getServerExecutor() server@endlink and @link #getRenderingService() rendering@endlink
+ * executor services.
+ *
+ * Each service shall be shutdown first using @ref ExecutorService#shutdown(). If the executor service is not terminated
+ * after 3 seconds or the shutdown is interrupted, then the service will be forcibly shutdown using
+ * @ref ExecutorService#shutdownNow().
+ */
+
+/**
+ * @fn Util::completedExceptionallyFuture(Throwable throwableIn)
+ *
+ * Creates an @ref CompletableFuture<T> that is completed exceptionally with the given @ref Throwable.
+ * <em>Full method signature: </em>
+ * <tt>public static &lt;T> CompletableFuture<T> Util::completedExceptionallyFuture(Throwable throwableIn)</tt>
+ *
+ * @param throwableIn The throwable to complete the future exceptionally
+ *
+ * @return An exceptionally completed future with the given throwable
+ * @warning This method is annotated with <tt>@OnlyIn(Dist.CLIENT)</tt>; it is only available on the
+ *          @link Dist#CLIENT physical client@endlink.
+ */
+
+/**
+ * @fn public static void Util::toRuntimeException(Throwable throwableIn)
+ *
+ * Throws the given @ref Throwable, wrapping into a @ref RuntimeException if needed.
+ *
+ * This method will throw the given @p throwableIn parameter.
+ * If @p throwableIn is not an unchecked exception (i.e. not a subclass of @ref RuntimeException or @ref Error),
+ * then it is wrapped into a @ref RuntimeException before throwing.
+ *
+ * <b>This method will never complete normally, and will always throw the given throwable.</b>
+ *
+ * @param throwableIn The throwable to wrap
+ * @throws RuntimeException This method will always throw the given @p throwableIn parameter, which may be wrapped in a
+ *                          @ref RuntimeException
+ */
+
+/**
+ * @fn public static Type<?> Util::attemptDataFix(TypeReference type, String choiceName)
+ *
+ * Attempts to create a data fixer for the given @ref TypeReference.
+ */
+
+/**
+ * @fn public static OS Util::getOSType()
+ *
+ * Returns a best-guess of the computer's Operating System, or @ref OS#UNKNOWN if no match is found.
+ * <em>Full method signature: </em>
+ * <tt>public static Util.OS Util::getOSType()</tt>
+ *
+ * This method relies upon the <tt>os.name</tt> system property, and examines it for keywords to determine the OS.
+ * It converts the property value to lowercase first, then searches for the following strings in order:
+ * <ul>
+ *   <li>@c win - @ref OS#WINDOWS </li>
+ *   <li>@c mac - @ref OS#OSX </li>
+ *   <li>@c solaris or @c sunos - @ref OS#SOLARIS </li>
+ *   <li>@c linux or @c unix - @ref OS#LINUX </li>
+ * </ul>
+ * If none of the keywords match against the property value, then @ref OS#UNKNOWN will be returned.
+ *
+ * @return A best-guess of the computer OS, or @ref OS#UNKNOWN it cannot be determined
+ */
+
+/**
+ * @fn public static <T> T Util::getLast(List<T> listIn)
+ *
+ * Returns the last element in the given list.
+ *
+ * @param listIn The list to retrieve from
+ * @return The last element in the list, may be @c null
+ */
+
+/**
+ * @fn public static <T> T Util::getElementAfter(Iterable<T> iterable, T element)
+ *
+ * Returns the next element after the given element in the given iterable, else returns the element itself.
+ * If @p element is @c null, then this will return @c null.
+ *
+ * @param iterable The iterable to search through
+ * @param element The element to search for, may be @c null
+ * @return The next element after @p element, else returns value of @p element; may be @c null
+ */
+
+/**
+ * @fn public static <T> T Util::getElementBefore(Iterable<T> iterable, T element)
+ *
+ * Returns the previous element before the given element in the given iterable, else returns the element itself.
+ * If @p element is @c null, then this will return @c null.
+ *
+ * @param iterable The iterable to search through
+ * @param element The element to search for, may be @c null
+ * @return The previous element before @p element, else returns value of @p element; may be @c null
+ */
+
+/**
+ * @fn public static <T> T Util::make(Supplier<T> supplier)
+ *
+ * Makes the object given by the supplier.
+ * Returns the result of <tt>supplier.get()</tt>.
+ *
+ * @param supplier A supplier of an object
+ * @return The object supplied by @p supplier
+ */
+
+/**
+ * @fn public static <T> T Util::make(T object, Consumer<T> consumer)
+ *
+ * Passes the given object to the consumer, then returns the object.
+ *
+ * This is used to initialize collections in static fields with their contents (without using builders such as
+ * @ref ImmutableMap.Builder).
+ *
+ * @param object The object to configure
+ * @param consumer The consumer to accept and configure the object
+ * @return The object, after being passed to the consumer
+ */
+
+/**
+ * @fn public static <K> Strategy<K> Util::identityHashStrategy()
+ *
+ * Returns the @ref Util.IdentityHashStrategy, casted to the given generics type.
+ *
+ * This hash strategy uses the identity/reference equality operator (<tt>==</tt>) for comparing two objects, and
+ * @ref System#identityHashCode to calculate the hash code for an object.
+ *
+ * @returns the identity hash strategy
+ */
+
+/**
+ * @fn Util::gather(List<? extends CompletableFuture<? extends V>> futuresIn)
+ *
+ * Gathers the result of each @ref CompletableFuture<? extends V> in the list, and stores them in a
+ * @ref CompletableFuture<List<V>>.
+ * <em>Full method signature:</em>
+ * <tt>public static <V> CompletableFuture<List<V>> Util::gather(List<? extends CompletableFuture<? extends V>> futuresIn)</tt>
+ *
+ * @param futuresIn The list of completable futures
+ * @returns A completable future for the list of results of the given completable futures list
+ */
+
+/**
+ * @fn public static <T> Stream<T> Util::streamOptional(Optional<? extends T> optionalIn)
+ *
+ * Converts the given @ref Optional<? extends T> into a @ref Stream<T>.
+ *
+ * If the optional is empty, then the resulting stream shall also be empty.
+ *
+ * @param optionalIn The optional to convert
+ * @return The resulting stream based on the optional
+ */
+
+/**
+ * @fn public static <T> Optional<T> Util::acceptOrElse(Optional<T> opt, Consumer<T> consumer, Runnable orElse)
+ *
+ * Passes the value in the @ref Optional<T> to the @ref Consumer, or else runs the given @ref Runnable.
+ *
+ * If the given Optional has a value present, then the value is passed to the given Consumer.
+ * If the given Optional is empty, then the Runnable is run instead.
+ *
+ * Returns the Optional for use in chaining Optional calls.
+ *
+ * @param opt The optional that may contain a value
+ * @param consumer The consumer that will accept the optional's value
+ * @param orElse The runnable that will be run if the optional is empty
+ * @return The given optional, for chaining
+ */
+
+/**
+ * @fn public static Runnable Util::namedRunnable(Runnable runnableIn, Supplier<String> supplierIn)
+ *
+ * Returns the given @ref Runnable with the given supplied name.
+ *
+ * The implementation of this simply returns the passed in runnable directly.
+ * However, this method if edited by developers can be changed to wrap the runnable in another runnable before returning,
+ * for purposes of printing the given runnable name to the console/log before running.
+ *
+ * @param runnableIn The runnable
+ * @param supplierIn The supplier of the runnable's name
+ * @return The given runnable
+ */
+
+/**
+ * @fn public static <T extends Throwable> T Util::pauseDevMode(T throwableIn)
+ *
+ * Returns the given @ref Throwable, optionally pausing in a wait-loop if
+ * @link SharedConstants#developmentMode development mode@endlink is enabled.
+ *
+ * If @ref SharedConstants#developmentMode is @c true, then an infinitely running @c while loop will run until the thread
+ * is interrupted externally, using Thread#interrupt().
+ * This is speculated to be used by Mojang developers to pause execution before an exception is thrown, for debugging the
+ * program without the use of exception-triggered breakpoints.
+ *
+ * @param throwableIn The throwable
+ * @return The passed-in throwable
+ */
+
+/**
+ * @fn public static String Util::getMessage(Throwable throwableIn)
+ *
+ * Traverses the causation chain and returns the root message of the given @ref Throwable.
+ *
+ * If the given Throwable has a cause, then this will return the result of calling this method on that cause. This
+ * effectively traverses the causation chain, until it reaches the root Throwable of the chain.
+ * If the given Throwable has no cause, and it has a message, then this will return that message. If it does not have a
+ * message, then this will return the result of calling @ref Object#toString() on the Throwable.
+ *
+ * @param throwableIn The throwable
+ * @return The root message of the throwable
+ */
+
+/**
+ * @fn public static <T> T Util::getRandomObject(T[] selections, Random rand)
+ *
+ * Returns a random object from the given array, based on the given @ref Random.
+ *
+ * The randomness of the selection shall conform to the characteristics of the given @ref Random, based on the
+ * behavior of @ref Random#nextInt(int).
+ *
+ * @param selections The array containing the objects to randomly select from.
+ * @param rand The random instance
+ * @return A randomly selected object from the given array
+ */
+
+/**
+ * @fn public static int Util::getRandomInt(int[] selections, Random rand)
+ *
+ * Returns a random integer from the given array, based on the given @ref Random.
+ *
+ * The randomness of the selection shall conform to the characteristics of the given @ref Random, based on the
+ * behavior of @ref Random#nextInt(int).
+ *
+ * @param selections The array containing the integer to randomly select from.
+ * @param rand The random instance
+ * @return A randomly selected integer from the given array
+ */
+
+/**
+ * @fn public static void Util::backupThenUpdate(File current, File latest, File oldBackup)
+ *
+ * Backups the first file to the third file, then updates the first file from the second file.
+ *
+ * <em>See Util#func_244364_a for more information.</em>
+ *
+ * @param current The current file
+ * @param latest The latest file, usually a temporary file
+ * @param oldBackup The prev. backup file
+ */
+
+/**
+ * @fn public static void Util::func_244364_a(Path p_244364_0_, Path p_244364_1_, Path p_244364_2_)
+ *
+ * Backups the first file/path to the third file/path, then updates the first file/path from the second file/path.
+ *
+ * To create the backup and update the files/paths, the following steps are done.
+ * <ul>
+ * <li>A backup of the current file/path is created by deleting the prev. backup file/path then copying to that file/path.
+ * <em>If this backup fails, then none of the next steps are executed.</em></li>
+ * <li>Deletes the current file/path. <em>If this deletion fails, then the next step is not executed.</em></li>
+ * <li>Moves the latest file/path to the current file/path.
+ * <em>If this move fails, then the backup file/path is copied over to the current file/path.</em></li>
+ *
+ * @param p_244364_0_ The current file/path
+ * @param p_244364_1_ The latest file/path, usually a temporary file
+ * @param p_244364_2_ The prev. backup file/path
+ */
+
+/**
+ * @fn public static int Util::func_240980_a_(String p_240980_0_, int p_240980_1_, int p_240980_2_)
+ *
+ * Increments/decrements the string position according to the given adjustment, respecting surrogate pairs in the string.
+ *
+ * Calculates a new string position for the given string based on the passed-in string position and adjustment.
+ * The adjustment parameter controls the direction of the calculation; a positive adjustment
+ * will head to the end of the string, while a negative adjustment will head to the beginning of the string.
+ *
+ * This method respects surrogate pairs; if it encounters a surrogate character during traversal and that character has
+ * a paired surrogate character, then both characters will be skipped as one.
+ *
+ * @param p_240980_0_ The string
+ * @param p_240980_1_ A string position, larger or equal to @c 0
+ * @param p_240980_2_ An adjustment, may be negative or positive
+ * @return The newly calculated string position
+ * @warning This method is annotated with <tt>@OnlyIn(Dist.CLIENT)</tt>; it is only available on the
+ *          @link Dist#CLIENT physical client@endlink.
+ */
+
+/**
+ * @fn public static Consumer<String> Util::func_240982_a_(String prefix, Consumer<String> p_240982_1_)
+ *
+ * Returns a @ref Consumer<String> that prefixes the string with the given prefix and passes it to the given
+ * @ref Consumer.
+ *
+ * @param prefix The string prefix
+ * @param p_240982_1_ The inner consumer
+ * @return A prefixing @ref Consumer<String>
+ */
+
+/**
+ * @fn public static DataResult<int[]> Util::validateIntStreamSize(IntStream stream, int size)
+ *
+ * Returns a @ref DataResult with the integers from the stream, depending on the amount of remaining elements.
+ *
+ * This method returns a @ref DataResult with an array of integers from the stream if it contains at least @p size integers;
+ * else it will return a failed @ref DataResult, which may contain the remaining integers in the stream, if any.
+ *
+ * This method uses @ref IntStream#limit(int) and @ref IntStream#toArray() to retrieve the integers.
+ *
+ * @param stream The stream to retrieve elements from
+ * @param size The expected size of the array
+ * @return A successful @ref DataResult with the requested integers from the stream, or an errored @ref DataResult with
+ *         either nothing or the remaining integers from the stream.
+ */
+
+/**
+ * @fn public static void Util::func_240994_l_()
+ *
+ * Creates and runs the "Timer hack thread" daemon thread.
+ *
+ * The Timer hack thread exists to keep the interrupt period for the system at 1ms for the whole life of the JVM process,
+ * for better granularity of the precision of Thread.sleep, and to avoid a bug where repeated alteration of the
+ * interrupt period on Windows causes the system clock to run faster than normal.
+ *
+ * This is possible because the JVM performs a special call to set the interrupt period to 1ms while a Java thread is
+ * sleeping, if the sleep interval requested by the thread using Thread.sleep is a value that is not a
+ * multiple of 10ms.
+ *
+ * @see <a target="_top" href="https://stackoverflow.com/a/824472/14416954">
+ *      A StackOverflow answer with more information and links</a>
+ */
+
+/**
+ * @fn public static void Util::func_240984_a_(Path p_240984_0_, Path p_240984_1_, Path p_240984_2_)
+ *
+ * Copies the source path from the parent path to the destination path.
+ *
+ * This copies the directory structure of the source path, relative to the parent path.
+ * An example: If this is called with @c 'a/b/c/d', @c 'a/b', and @c 'e/f', then the resulting copied path will be at
+ * @c 'e/f/c/d'.
+ *
+ * @param p_240984_0_ The source path
+ * @param p_240984_1_ The parent path of the source path
+ * @param p_240984_2_ The destination path
+ * @warning This method is annotated with <tt>@OnlyIn(Dist.CLIENT)</tt>; it is only available on the
+ *          @link Dist#CLIENT physical client@endlink.
+ */
+
+/**
+ * @fn public static String Util::func_244361_a(String p_244361_0_, ICharacterPredicate p_244361_1_)
+ *
+ * Converts the string to lowercase, replacing any character not matching the given predicate to <tt>_</tt>.
+ *
+ * The conversion to lowercase is done with @ref Locale#ROOT.
+ *
+ * @test For inputs @c "testString" and <tt>(ch) -&gt; ch == 't'</tt>,
+ *       output should be @c "_es_s_ring".
+ * @param p_244361_0_ The string to lowercase
+ * @param p_244361_1_ The character predicate/filter
+ * @return The lowercased and filtered string
+ * @warning This method is annotated with <tt>@OnlyIn(Dist.CLIENT)</tt>; it is only available on the
+ *          @link Dist#CLIENT physical client@endlink.
+ */
+
+/**
+ * @class net.minecraft.util.Util.OS
+ *
+ * Enumeration for the different operating systems.
+ *
+ * Used for opening URLs and files through operating system dependent ways, due to different methods required on different
+ * operating systems.
+ */
+
+    /**
+     * @var OS::LINUX
+     *
+     * Represents a UNIX- or Linux-based operating system.
+     */
+
+    /**
+     * @var OS::SOLARIS
+     *
+     * Represents a SunOS or Solaris operating system.
+     */
+
+    /**
+     * @var OS::WINDOWS
+     *
+     * Represents a Windows operating system.
+     */
+
+    /**
+     * @var OS::OSX
+     *
+     * Represents OSX, or a Macintosh operating system.
+     */
+
+    /**
+     * @var OS::UNKNOWN
+     *
+     * Represents an unknown operating system.
+     */
+
+    /**
+     * @fn public void OS::openURL(URL url)
+     *
+     * Attempts to open the @ref URL through the operating system.
+     *
+     * This spawns a process using a platform-dependent command line string, using @ref Runtime#exec(String[]).
+     * If the process prints to the error output stream, or an exception occurs while trying to launch the process, then the
+     * messages/exceptions will be printed to the console/log.
+     *
+     * @param url The @ref URL to open
+     * @warning This method is annotated with <tt>@OnlyIn(Dist.CLIENT)</tt>; it is only available on the
+     *          @link Dist#CLIENT physical client@endlink.
+     */
+
+    /**
+     * @fn public void OS::openURI(URI uri)
+     *
+     * Attempts to open the @ref URI through the operating system.
+     *
+     * <em>See @ref OS#openURL(URL) for more information.</em>
+     *
+     * @param uri The @ref URI to open
+     * @warning This method is annotated with <tt>@OnlyIn(Dist.CLIENT)</tt>; it is only available on the
+     *          @link Dist#CLIENT physical client@endlink.
+     */
+
+    /**
+     * @fn public void OS::openFile(File fileIn)
+     *
+     * Attempts to open the @ref File through the operating system.
+     *
+     * <em>See @ref OS#openURL(URL) for more information.</em>
+     *
+     * @param fileIn The @ref File to open.
+     * @warning This method is annotated with <tt>@OnlyIn(Dist.CLIENT)</tt>; it is only available on the
+     *          @link Dist#CLIENT physical client@endlink.
+     */
+
+    /**
+     * @fn public void OS::openURI(String uri)
+     *
+     * Attempts to open the URI in string form through the operating system.
+     *
+     * <em>See @ref OS#openURL(URL) for more information.</em>
+     *
+     * @param uri The URI in string form to open.
+     * @warning This method is annotated with <tt>@OnlyIn(Dist.CLIENT)</tt>; it is only available on the
+     *          @link Dist#CLIENT physical client@endlink.
+     */

@@ -1,0 +1,302 @@
+/**
+ * @class net.minecraftforge.client.event.RenderTooltipEvent
+ *
+ * Fired when a tooltip is rendering.
+ * See the various subclasses for listening to specific events.
+ *
+ * @see RenderTooltipEvent.Pre
+ * @see RenderTooltipEvent.Post
+ * @see RenderTooltipEvent.Color
+ * @see GuiUtils#drawHoveringText(ItemStack, MatrixStack, List, int, int, int, int, int, int, int, int, FontRenderer)
+ */
+
+/**
+ * @fn public ItemStack RenderTooltipEvent::getStack()
+ *
+ * Returns the \ref ItemStack for which the tooltip is being rendered.
+ *
+ * In certain situations where a tooltip is rendered without an \ref ItemStack, this will be the value of
+ * \ref GuiUtils#cachedTooltipStack, which has the value of \ref ItemStack#EMPTY.
+ *
+ * @return The stack which the tooltip is being rendered for, may be \ref ItemStack#EMPTY
+ */
+
+/**
+ * @fn public List<? extends ITextProperties> RenderTooltipEvent::getLines()
+ *
+ * Returns an unmodifiable view of the lines of text on the tooltip, as represented by \ref ITextProperties.
+ * This may change between \ref RenderTooltipEvent.Pre and \ref RenderTooltipEvent.Post.
+ *
+ * <em>Use \ref ItemTooltipEvent to modify the text of the tooltip.</em>
+ *
+ * @return An unmodifiable view of list of text on the tooltip
+ * @see ItemTooltipEvent
+ */
+
+/**
+ * @fn public MatrixStack RenderTooltipEvent::getMatrixStack()
+ *
+ * Returns the \ref MatrixStack used for transformations, rotations, and scaling in rendering the tooltip.
+ *
+ * @return The matrix stack used for rendering
+ */
+
+/**
+ * @fn public int RenderTooltipEvent::getX()
+ *
+ * Returns the X position of where the tooltip box will be rendered.
+ * When rendering a tooltip for an itemstack, this will by default the X position of the mouse cursor.
+ *
+ * @return The X position of the tooltip box
+ * @see RenderTooltipEvent.Pre::setX(int)
+ */
+
+/**
+ * @fn public int RenderTooltipEvent::getY()
+ *
+ * Returns the Y position of where the tooltip box will be rendered.
+ * When rendering a tooltip for an itemstack, this will by default be the Y position of the mouse cursor.
+ *
+ * @return The Y position of the tooltip box
+ * @see RenderTooltipEvent.Pre::setY(int)
+ */
+
+/**
+ * @fn public FontRenderer RenderTooltipEvent::getFontRenderer()
+ *
+ * Returns the \ref FontRenderer used for rendering the text.
+ *
+ * @return The font renderer
+ * @see RenderTooltipEvent.Pre::setFontRenderer(int)
+ */
+
+/**
+ * @class net.minecraftforge.client.event.RenderTooltipEvent.Pre
+ *
+ * Fired <b>before</b> the tooltip is rendered.
+ * This can be used to modify the positioning of the tooltip.
+ *
+ * This event is \link Cancelable cancellable\endlink, and does not \link HasResult have a result\endlink.
+ * If this event is cancelled, then the tooltip will not be rendered and the corresponding
+ * \ref RenderTooltipEvent.Color, \ref RenderTooltipEvent.PostBackground, and
+ * \ref RenderTooltipEvent.PostText will not be fired.
+ *
+ * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+ * only on the \link LogicalSide#CLIENT logical client\endlink.
+ */
+
+    /**
+     * @fn public int Pre::getScreenWidth()
+     *
+     * Returns the perceived width of the screen.
+     * This is used in wrapping the tooltip text within the bounds of the screen.
+     *
+     * This may not reflect the actual dimensions of the game window/screen,
+     * as it can be adjusted using \ref Pre#setScreenWeight(int).
+     *
+     * @return The width of the screen
+     */
+
+    /**
+     * @fn public void Pre::setScreenWidth(int screenWidth)
+     *
+     * Sets the new perceived width of the screen.
+     * This is used in wrapping the tooltip text within the bounds of the screen.
+     *
+     * @param screenWidth The new width of the screen.
+     */
+
+    /**
+     * @fn public int Pre::getScreenHeight()
+     *
+     * Returns the perceived height of the screen.
+     * This is used in wrapping the tooltip text within the bounds of the screen.
+     *
+     * This may not reflect the actual dimensions of the game window/screen,
+     * as it can be adjusted using \ref Pre#setScreenHeight(int).
+     *
+     * @return The height of the screen
+     */
+
+    /**
+     * @fn public void Pre::setScreenHeight(int screenHeight)
+     *
+     * Sets the new perceived height of the screen.
+     * This is used in wrapping the tooltip text within the bounds of the screen.
+     *
+     * @param screenWidth The new height of the screen.
+     */
+
+    /**
+     * @fn public int Pre::getMaxWidth()
+     *
+     * Returns the maximum width of the tooltip when being rendered.
+     * A value of \c -1 means an unlimited maximum width.
+     *
+     * @return The maximum width
+     */
+
+    /**
+     * @fn public void Pre::setMaxWidth(int maxWidth)
+     *
+     * Sets the maximum width of the tooltip.
+     * Use \c -1 for unlimited maximum width.
+     *
+     * @param maxWidth The new maximum width
+     */
+
+    /**
+     * @fn public void Pre::setFontRenderer(FontRenderer fr)
+     *
+     * Sets the \ref FontRenderer to be used to render text.
+     *
+     * @param fr The new font renderer
+     */
+
+    /**
+     * @fn public void Pre::setX(int x)
+     *
+     * Sets the new X position of where the tooltip box will be rendered.
+     *
+     * @param x The new X position of the tooltip
+     */
+
+    /**
+     * @fn public void Pre::setY(int y)
+     *
+     * Sets the new Y position of where the tooltip box will be rendered.
+     *
+     * @param y The new Y position of the tooltip
+     */
+
+/**
+ * @class net.minecraftforge.client.event.RenderTooltipEvent.Post
+ *
+ * Fired <b>after</b> the tooltip is rendered, at different points.
+ * See the two subclasses for listening to after background or after text rendering.
+ *
+ * @see RenderTooltipEvent.PostBackground
+ * @see RenderTooltipEvent.PostText
+ */
+
+    /**
+     * @fn public int Post::getWidth()
+     *
+     * Returns the width of the inner tooltip box, which does not include the border's width.
+     *
+     * @return The width of the inner tooltip box (not including border)
+     */
+
+    /**
+     * @fn public int Post::getHeight()
+     *
+     * Returns the height of the inner tooltip box, which does not include the border's height.
+     *
+     * @return The height of the inner tooltip box (not including border)
+     */
+
+/**
+ * @class net.minecraftforge.client.event.RenderTooltipEvent.PostBackground
+ *
+ * Fired <b>after</b> the tooltip background is rendered, and <em>before</em> the tooltip text is rendered.
+ *
+ * This event is not \link Cancelable cancellable\endlink, and does not \link HasResult have a result\endlink.
+ *
+ * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+ * only on the \link LogicalSide#CLIENT logical client\endlink.
+ */
+
+/**
+ * @class net.minecraftforge.client.event.RenderTooltipEvent.PostText
+ *
+ * Fired <b>after</b> the tooltip text is rendered.
+ *
+ * This event is not \link Cancelable cancellable\endlink, and does not \link HasResult have a result\endlink.
+ *
+ * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+ * only on the \link LogicalSide#CLIENT logical client\endlink.
+ */
+
+/**
+ * @class net.minecraftforge.client.event.RenderTooltipEvent.Color
+ *
+ * Fired <em>directly <b>before</b> the tooltip background</em> is rendered. <br/>
+ * This can be used to modify the background color and the border's gradient colors.
+ *
+ * This event is not \link Cancelable cancellable\endlink, and does not \link HasResult have a result\endlink.
+ *
+ * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+ * only on the \link LogicalSide#CLIENT logical client\endlink.
+ */
+
+    /**
+     * @fn public int Color::getBackground()
+     *
+     * Returns the background color of the tooltip.
+     *
+     * @return The background color of the tooltip
+     */
+
+    /**
+     * @fn public void Color::setBackground(int background)
+     *
+     * Sets the new color for the background of the tooltip.
+     *
+     * @param background the new tooltip background color
+     */
+
+    /**
+     * @fn public int Color::getBorderStart()
+     *
+     * Returns the start color of the tooltip's border.
+     *
+     * @return The start color for the tooltip border
+     */
+
+    /**
+     * @fn public void Color::setBorderStart(int borderStart)
+     *
+     * Sets the new start color for the gradient of the tooltip border.
+     *
+     * @param borderStart the new start color for the tooltip border
+     */
+
+    /**
+     * @fn public int Color::getBorderEnd()
+     *
+     * Returns the end color of the tooltip's border.
+     *
+     * @return the end color for the tooltip border
+     */
+
+    /**
+     * @fn public void Color::setBorderEnd(int borderEnd)
+     *
+     * Sets the new end color for the gradient of the tooltip border.
+     *
+     * @param borderEnd the new end color for the tooltip border
+     */
+
+    /**
+     * @fn public int Color::getOriginalBackground()
+     *
+     * Returns the original color of the tooltip's background, before any modifications by this event.
+     *
+     * @return the original tooltip background color
+     */
+
+    /**
+     * @fn public int Color::getOriginalBorderStart()
+     *
+     * Returns the original start color of the tooltip's border, before any modifications by this event.
+     *
+     * @return the original tooltip border's start color
+     */
+
+    /**
+     * @fn public int Color::getOriginalBorderEnd()
+     *
+     * Returns the original end color of the tooltip's border, before any modifications by this event.
+     *
+     * @return the original tooltip border's end color
+     */

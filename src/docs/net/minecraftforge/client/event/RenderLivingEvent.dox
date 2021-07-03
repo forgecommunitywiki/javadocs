@@ -1,0 +1,95 @@
+/**
+ * @class net.minecraftforge.client.event.RenderLivingEvent
+ *
+ * Fired when a {@link LivingEntity} is rendered.
+ * See the two subclasses to listen for before and after rendering.
+ *
+ * @param <T> the living entity that is being rendered
+ * @param <M> the model for the living entity
+ *
+ * @see RenderLivingEvent.Pre
+ * @see RenderLivingEvent.Post
+ * @see RenderPlayerEvent
+ * @see LivingRenderer
+ */
+
+/**
+ * @fn public LivingEntity RenderLivingEvent::getEntity()
+ *
+ * Returns the \ref LivingEntity instance that is being rendered.
+ *
+ * @return the living entity being rendered
+ */
+
+/**
+ * @fn public LivingRenderer<T, M> RenderLivingEvent::getRenderer()
+ *
+ * Returns the \ref LivingRenderer for the living entity.
+ *
+ * @return The renderer for the living entity
+ */
+
+/**
+ * @fn public float RenderLivingEvent::getPartialRenderTick()
+ *
+ * Returns the partial amount of ticks between the last and next render tick.
+ * This will be in the range of <tt>0.0-1.0</tt>.
+ *
+ * @return The amount of partial ticks
+ */
+
+/**
+ * @fn public MatrixStack RenderLivingEvent::getMatrixStack()
+ *
+ * Returns the \ref MatrixStack used for transformations, rotations, and scaling in rendering.
+ *
+ * @return The matrix stack used for rendering
+ */
+
+/**
+ * @fn public IRenderTypeBuffer RenderLivingEvent::getBuffers()
+ *
+ * Returns the \ref IRenderTypeBuffer currently being used for rendering.
+ *
+ * @return The rendering buffers
+ */
+
+/**
+ * @fn public int RenderLivingEvent::getLight()
+ *
+ * Returns an integer packed with the sky and block light.
+ * This is used in rendering to determine the color of the light level of the block, according to the light texture.
+ *
+ * @return The amount of packed light for rendering
+ * @see LightTexture
+ * @see LightTexture#packLight(int, int)
+ * @see LightTexture#getLightBlock(int)
+ * @see LightTexture#getLightSky(int)
+ */
+
+/**
+ * Fired <b>before</b> an entity is rendered.
+ * This can be used to render additional effects or suppress rendering.
+ *
+ * This event is \link Cancelable cancellable\endlink, and does not \link HasResult have a result\endlink.
+ * If this event is cancelled, then the entity will not be rendered and the corresponding
+ * \ref RenderLivingEvent.Post will not be fired.
+ *
+ * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+ * only on the \link LogicalSide#CLIENT logical client\endlink.
+ *
+ * @param <T> The living entity that is being rendered
+ * @param <M> The model for the living entity
+ */
+
+/**
+ * Fired <b>after</b> an entity is rendered, if the corresponding {@link RenderLivingEvent.Post} is not cancelled.
+ *
+ * This event is not \link Cancelable cancellable\endlink, and does not \link HasResult have a result\endlink.
+ *
+ * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+ * only on the \link LogicalSide#CLIENT logical client\endlink.
+ *
+ * @param <T> The living entity that was rendered
+ * @param <M> The model for the living entity
+ */

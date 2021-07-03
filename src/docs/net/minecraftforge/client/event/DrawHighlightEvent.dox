@@ -1,0 +1,104 @@
+/**
+ * @class net.minecraftforge.client.event.DrawHighlightEvent
+ *
+ * Fired before a selection highlight is rendered.
+ * See the two subclasses to listen for blocks or entities.
+ *
+ * @see DrawHighlightEvent.HighlightBlock
+ * @see DrawHighlightEvent.HighlightEntity
+ * @see ForgeHooksClient#onDrawBlockHighlight(WorldRenderer, ActiveRenderInfo, RayTraceResult, float, MatrixStack, IRenderTypeBuffer)
+ * @todo This event will be renamed to DrawSelectionEvent
+ */
+
+/**
+ * @fn public WorldRenderer getContext()
+ *
+ * Returns the \ref WorldRenderer.
+ *
+ * @return The world renderer
+ */
+
+/**
+ * @fn public ActiveRenderInfo getInfo()
+ *
+ * Returns the \ref ActiveRenderInfo containing the information for the current rendering context.
+ *
+ * @return The active render information
+ */
+
+/**
+ * @fn public RayTraceResult getTarget()
+ *
+ * Returns the \ref RayTraceResult, representing the object at the position of the player's mouse.
+ * The subclasses of this event override this method to return a more specific subclass of \ref RayTraceResult, such as
+ * \ref BlockRayTraceResult.
+ *
+ * @return The target of the highlight
+ * @see HighlightBlock#getTarget()
+ * @see HighlightEntity#getTarget()
+ */
+
+/**
+ * @fn public float getPartialTicks()
+ *
+ * Returns the partial amount of ticks between the last and next render tick.
+ * This will be in the range of <tt>0.0-1.0</tt>.
+ *
+ * @return The amount of partial ticks
+ */
+
+/**
+ * @fn public MatrixStack getMatrix()
+ *
+ * Returns the \ref MatrixStack used for transformations, rotations, and scaling in rendering.
+ *
+ * @return The matrix stack used for rendering
+ */
+
+/**
+ * @fn public IRenderTypeBuffer getBuffers()
+ *
+ * Returns the \ref IRenderTypeBuffer currently being used for rendering.
+ *
+ * @return The rendering buffers
+ */
+
+/**
+ * @class net.minecraftforge.client.event.DrawHighlightEvent.HighlightBlock
+ *
+ * Fired before a block's selection highlight is rendered.
+ *
+ * This event is \link Cancelable cancellable\endlink, and does not \link HasResult have a result\endlink.
+ * If the event is cancelled, then the block selection highlight will not be rendered.
+ *
+ * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+ * only on the \link LogicalSide#CLIENT logical client\endlink.
+ */
+
+    /**
+     * @fn public BlockRayTraceResult HighlightBlock::getTarget()
+     *
+     * Returns the \ref BlockRayTraceResult, representing the block at the position of the player's mouse.
+     *
+     * @return The block target of the highlight
+     */
+
+/**
+ * @class net.minecraftforge.client.event.DrawHighlightEvent.HighlightEntity
+ *
+ * Fired before a block's selection highlight is rendered.
+ *
+ * This event is \link Cancelable cancellable\endlink, and does not \link HasResult have a result\endlink.
+ * Cancelling this event has no effect.
+ *
+ * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+ * only on the \link LogicalSide#CLIENT logical client\endlink.
+ */
+
+    /**
+     * @fn public EntityRayTraceResult HighlightEntity::getTarget()
+     *
+     * Returns the \ref EntityRayTraceResult, representing the entity at the position of the player's mouse.
+     *
+     * @return The entity target of the highlight
+     */

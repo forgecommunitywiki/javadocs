@@ -1,0 +1,67 @@
+/**
+ * @class net.minecraftforge.client.event.RenderItemInFrameEvent
+ *
+ * Fired before an item stack is rendered in an item frame.
+ * This can be used to prevent normal rendering and add custom rendering.
+ *
+ * This event is \link Cancelable cancellable\endlink, and does not \link HasResult have a result\endlink.
+ * If the event is cancelled, then the item frame's item stack will not be rendered.
+ *
+ * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+ * only on the \link LogicalSide#CLIENT logical client\endlink.
+ *
+ * @see ItemFrameRenderer
+ */
+
+/**
+ * @fn public ItemStack RenderItemInFrameEvent::getItem()
+ *
+ * Returns the \ref ItemStack stored in the \link #getEntityItemFrame() item frame entity\endlink that will be rendered.
+ *
+ * @return The item stack being rendered
+ */
+
+/**
+ * @fn public ItemFrameEntity RenderItemInFrameEvent::getEntityItemFrame()
+ *
+ * Returns the \ref ItemFrameEntity for this event.
+ *
+ * @return The item frame entity
+ */
+
+/**
+ * @fn public ItemFrameRenderer RenderItemInFrameEvent::getRenderer()
+ *
+ * Returns the \link ItemFrameRenderer renderer\endlink for the \ref ItemFrameEntity.
+ *
+ * @return The renderer for the item frame entity
+ */
+
+/**
+ * @fn public MatrixStack RenderItemInFrameEvent::getMatrix()
+ *
+ * Returns the \ref MatrixStack used for transformations, rotations, and scaling in rendering.
+ *
+ * @return The matrix stack used for rendering
+ */
+
+/**
+ * @fn public IRenderTypeBuffer RenderItemInFrameEvent::getBuffers()
+ *
+ * Returns the \ref IRenderTypeBuffer currently being used for rendering.
+ *
+ * @return The rendering buffers
+ */
+
+/**
+ * @fn public int RenderItemInFrameEvent::getLight()
+ *
+ * Returns an integer packed with the sky and block light.
+ * This is used in rendering to determine the color of the light level of the block, according to the light texture.
+ *
+ * @return The amount of packed light for rendering
+ * @see LightTexture
+ * @see LightTexture#packLight(int, int)
+ * @see LightTexture#getLightBlock(int)
+ * @see LightTexture#getLightSky(int)
+ */

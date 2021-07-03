@@ -1,0 +1,47 @@
+/**
+ * @class net.minecraftforge.client.event.FOVUpdateEvent
+ *
+ * Fired after the FOV (field of vision) modifier for the player is calculated.
+ * This can be used to modify the FOV before the e.g. FOV settings are applied.
+ *
+ * This event is not \link Cancelable cancellable\endlink, and does not \link HasResult have a result\endlink.
+ *
+ * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+ * only on the \link LogicalSide#CLIENT logical client\endlink.
+ *
+ * @see ForgeHooksClient#getOffsetFOV(PlayerEntity, float)
+ * @see EntityViewRenderEvent.FOVModifier
+ * @author MachineMuse
+ */
+
+/**
+ * @fn public PlayerEntity FOVUpdateEvent::getEntity()
+ *
+ * Returns the \ref PlayerEntity affected by this event.
+ *
+ * @return the player entity
+ */
+
+/**
+ * @fn public float FOVUpdateEvent::getFov()
+ *
+ * Returns the original, unmodified FOV (field of vision) of the player.
+ *
+ * @return the original FOV of the player
+ */
+
+/**
+ * @fn public float FOVUpdateEvent::getNewfov()
+ *
+ * Returns the current FOV (field of vision) that will be applied to the player.
+ *
+ * @return the current FOV of the player
+ */
+
+/**
+ * @fn public void FOVUpdateEvent::setNewfov(float newfov)
+ *
+ * Sets the new FOV (field of vision) that will be applied to the player.
+ *
+ * @param newfov the new FOV (field of vision)
+ */

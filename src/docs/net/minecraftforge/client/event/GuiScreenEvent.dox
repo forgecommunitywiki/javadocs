@@ -1,0 +1,632 @@
+/**
+ * @class net.minecraftforge.client.event.GuiScreenEvent
+ *
+ * Fired on different events/actions when a \ref Screen is active and visible.
+ * See the various subclasses for listening to different events.
+ *
+ * These events are fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+ * only on the \link LogicalSide#CLIENT logical client\endlink.
+ *
+ * <b>This classed is annotated with <tt>\link OnlyIn \@OnlyIn\endlink(\link Dist#CLIENT Dist.CLIENT\endlink)</tt>.</b>
+ *
+ * @see GuiScreenEvent.InitGuiEvent
+ * @see GuiScreenEvent.DrawScreenEvent
+ * @see GuiScreenEvent.BackgroundDrawnEvent
+ * @see GuiScreenEvent.PotionShiftEvent
+ * @see GuiScreenEvent.MouseInputEvent
+ * @see GuiScreenEvent.KeyboardKeyEvent
+ * @author bspkrs
+ */
+
+/**
+ * @fn public Screen GuiScreenEvent::getGui()
+ *
+ * Returns the \ref Screen of this event.
+ *
+ * @return The screen
+ */
+
+/**
+ * @class net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent
+ *
+ * Fired when a \ref Screen is being initialized.
+ * See the two subclasses for listening before and after the initialization.
+ *
+ * @see InitGuiEvent.Pre
+ * @see InitGuiEvent.Post
+ */
+
+    /**
+     * @fn public List<Widget> InitGuiEvent::getWidgetList()
+     *
+     * Returns an unmodifiable view of the list of \link Widget Widgets\endlink on the screen.
+     *
+     * @return An unmodifiable view of the list of widgets
+     */
+
+    /**
+     * @fn public void InitGuiEvent::addWidget(Widget button)
+     *
+     * Adds the given \ref Widget to the screen.
+     *
+     * @param button The widget to add
+     */
+
+    /**
+     * @fn public void InitGuiEvent::removeWidget(Widget button)
+     *
+     * Removes the given \ref Widget from the screen.
+     *
+     * @param button The widget to remove
+     */
+
+    /**
+     * @class net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent.Pre
+     *
+     * Fired <b>before</b> the screen's overridable initialization method is fired.
+     *
+     * This event is \link Cancelable cancelable\endlink, and does not \link HasResult have a result\endlink.
+     * If the event is cancelled, the initialization method will not be called, 
+     * and the widgets and children lists will not be cleared.
+     *
+     * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+     * only on the \link LogicalSide#CLIENT logical client\endlink.
+     */
+
+    /**
+     * @class net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent.Post
+     *
+     * Fired <b>after</b> the screen's overridable initialization method is called.
+     *
+     * This event is not \link Cancelable cancelable\endlink, and does not \link HasResult have a result\endlink.
+     *
+     * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+     * only on the \link LogicalSide#CLIENT logical client\endlink.
+     */
+
+/**
+ * @class net.minecraftforge.client.event.GuiScreenEvent.DrawScreenEvent
+ *
+ * Fired when a \ref Screen is being drawn.
+ * See the two subclasses for listening before and after drawing.
+ *
+ * @see DrawScreenEvent.Pre
+ * @see DrawScreenEvent.Post
+ * @see ForgeHooksClient#drawScreen(Screen, MatrixStack, int, int, float)
+ */
+
+    /**
+     * @fn public MatrixStack DrawScreenEvent::getMatrixStack()
+     *
+     * Returns the \ref MatrixStack used for transformations, rotations, and scaling in rendering.
+     *
+     * @return The matrix stack used for rendering
+     */
+
+    /**
+     * @fn public int DrawScreenEvent::getMouseX()
+     *
+     * Returns the X coordinate of the mouse pointer, relative to the \link MainWindow main window\endlink of the game.
+     *
+     * @return The X coordinate of the mouse pointer
+     */
+
+    /**
+     * @fn public int DrawScreenEvent::getMouseY()
+     *
+     * Returns the Y coordinate of the mouse pointer, relative to the \link MainWindow main window\endlink of the game.
+     *
+     * @return The Y coordinate of the mouse pointer
+     */
+
+    /**
+     * @fn public float DrawScreenEvent::getRenderPartialTicks()
+     *
+     * Returns the partial amount of ticks between the last and next render tick.
+     * This will be in the range of <tt>0.0-1.0</tt>.
+     *
+     * @return The amount of partial render ticks
+     */
+
+    /**
+     * @class net.minecraftforge.client.event.GuiScreenEvent.DrawScreenEvent.Pre
+     *
+     * Fired <b>before</b> the \ref Screen is drawn.
+     *
+     * This event is \link Cancelable cancelable\endlink, and does not \link HasResult have a result\endlink.
+     * If the event is cancelled, the screen will not be drawn.
+     *
+     * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+     * only on the \link LogicalSide#CLIENT logical client\endlink.
+     */
+
+    /**
+     * @class net.minecraftforge.client.event.GuiScreenEvent.DrawScreenEvent.Post
+     *
+     * Fired <b>after</b> the \ref Screen is drawn.
+     *
+     * This event is not \link Cancelable cancelable\endlink, and does not \link HasResult have a result\endlink.
+     *
+     * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+     * only on the \link LogicalSide#CLIENT logical client\endlink.
+     */
+
+/**
+ * @class net.minecraftforge.client.event.GuiScreenEvent.BackgroundDrawnEvent
+ *
+ * Fired directly after the background of the \ref Screen is drawn.
+ * Can be used for drawing above the background but below the tooltips.
+ *
+ * This event is not \link Cancelable cancelable\endlink, and does not \link HasResult have a result\endlink.
+ *
+ * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+ * only on the \link LogicalSide#CLIENT logical client\endlink.
+ */
+
+    /**
+     * @fn public MatrixStack BackgroundDrawnEvent::getMatrixStack()
+     *
+     * Returns the \ref MatrixStack used for transformations, rotations, and scaling in rendering.
+     *
+     * @return The matrix stack used for rendering
+     */
+
+/**
+ * @class net.minecraftforge.client.event.GuiScreenEvent.PotionShiftEvent
+ *
+ * Fired when there are potion effects to be rendered and the \ref Screen is being shifted.
+ *
+ * This event is \link Cancelable cancelable\endlink, and does not \link HasResult have a result\endlink.
+ * If the event is cancelled, the screen will be prevented from shifting.
+ *
+ * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+ * only on the \link LogicalSide#CLIENT logical client\endlink.
+ */
+
+/**
+ * @class net.minecraftforge.client.event.GuiScreenEvent.MouseInputEvent
+ *
+ * Fired whenever an action is performed by the mouse.
+ * See the various subclasses to listen for different actions.
+ *
+ * @see GuiScreenEvent.MouseClickedEvent
+ * @see GuiScreenEvent.MouseReleasedEvent
+ * @see GuiScreenEvent.MouseDragEvent
+ * @see GuiScreenEvent.MouseScrollEvent
+ */
+
+    /**
+     * @fn public double MouseInputEvent::getMouseX()
+     *
+     * Returns the X coordinate of the mouse pointer, relative to the \link MainWindow main window\endlink of the game.
+     *
+     * @return The X position of the mouse cursor
+     */
+
+    /**
+     * @fn public double MouseInputEvent::getMouseY()
+     *
+     * Returns the X coordinate of the mouse pointer, relative to the \link MainWindow main window\endlink of the game.
+     *
+     * @return The Y position of the mouse cursor
+     */
+
+/**
+ * @class net.minecraftforge.client.event.GuiScreenEvent.MouseClickedEvent
+ *
+ * Fired when a mouse button is clicked.
+ * See the two subclasses for listening before and after the normal handling.
+ *
+ * @see MouseClickedEvent.Pre
+ * @see MouseClickedEvent.Post
+ */
+
+    /**
+     * @fn public int MouseClickedEvent::getButton()
+     *
+     * Returns the GLFW key code of the clicked mouse button.
+     *
+     * @return The key code of the clicked mouse button
+     *
+     * @see GLFW#GLFW_MOUSE_BUTTON_LEFT
+     * @see GLFW#GLFW_MOUSE_BUTTON_RIGHT
+     * @see GLFW#GLFW_MOUSE_BUTTON_MIDDLE
+     * @see GLFW key constants starting with 'GLFW_MOUSE_BUTTON_'
+     * @see <a href="http://www.glfw.org/docs/latest/input.html#input_mouse_button" target="_top">the online GLFW documentation</a>
+     */
+
+    /**
+     * @class net.minecraftforge.client.event.GuiScreenEvent.MouseClickedEvent.Pre
+     *
+     * Fired <b>before</b> the mouse click is handled by the screen.
+     *
+     * This event is \link Cancelable cancelable\endlink, and does not \link HasResult have a result\endlink.
+     * If the event is cancelled, the screen's mouse click handler will be bypassed
+     * and the corresponding \ref MouseClickedEvent.Post will not be fired.
+     *
+     * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+     * only on the \link LogicalSide#CLIENT logical client\endlink.
+     *
+     * @see ForgeHooksClient#onGuiMouseClickedPre(Screen, double, double, int)
+     */
+
+    /**
+     * @class net.minecraftforge.client.event.GuiScreenEvent.MouseClickedEvent.Post
+     *
+     * Fired <b>after</b> the mouse click is handled, if not handled by the screen
+     * and the corresponding \ref MouseClickedEvent.Pre is not cancelled.
+     *
+     * This event is \link Cancelable cancelable\endlink, and does not \link HasResult have a result\endlink.
+     * If the event is cancelled, the mouse click will be set as handled.
+     *
+     * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+     * only on the \link LogicalSide#CLIENT logical client\endlink.
+     *
+     * @see ForgeHooksClient#onGuiMouseClickedPost(Screen, double, double, int)
+     */
+
+/**
+ * @class net.minecraftforge.client.event.GuiScreenEvent.MouseReleasedEvent
+ *
+ * Fired when a mouse button is released.
+ * See the two subclasses for listening before and after the normal handling.
+ *
+ * @see MouseReleasedEvent.Pre
+ * @see MouseReleasedEvent.Post
+ */
+
+    /**
+     * @fn public int MouseReleasedEvent::getButton()
+     *
+     * Returns the GLFW key code of the released mouse button.
+     *
+     * @return The key code of the released mouse button
+     *
+     * @see GLFW#GLFW_MOUSE_BUTTON_LEFT
+     * @see GLFW#GLFW_MOUSE_BUTTON_RIGHT
+     * @see GLFW#GLFW_MOUSE_BUTTON_MIDDLE
+     * @see GLFW key constants starting with 'GLFW_MOUSE_BUTTON_'
+     * @see <a href="http://www.glfw.org/docs/latest/input.html#input_mouse_button" target="_top">the online GLFW documentation</a>
+     */
+
+    /**
+     * @class net.minecraftforge.client.event.GuiScreenEvent.MouseReleasedEvent.Pre
+     *
+     * Fired <b>before</b> the mouse release is handled by the screen.
+     *
+     * This event is \link Cancelable cancelable\endlink, and does not \link HasResult have a result\endlink.
+     * If the event is cancelled, the screen's mouse release handler will be bypassed
+     * and the corresponding \ref MouseReleasedEvent.Post will not be fired.
+     *
+     * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+     * only on the \link LogicalSide#CLIENT logical client\endlink.
+     *
+     * @see ForgeHooksClient#onGuiMouseReleasedPre(Screen, double, double, int)
+     */
+
+    /**
+     * @class net.minecraftforge.client.event.GuiScreenEvent.MouseReleasedEvent.Post
+     *
+     * Fired <b>after</b> the mouse release is handled, if not handled by the screen
+     * and the corresponding \ref MouseReleasedEvent.Pre is not cancelled.
+     *
+     * This event is \link Cancelable cancelable\endlink, and does not \link HasResult have a result\endlink.
+     * If the event is cancelled, the mouse release will be set as handled.
+     *
+     * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+     * only on the \link LogicalSide#CLIENT logical client\endlink.
+     *
+     * @see ForgeHooksClient#onGuiMouseReleasedPost(Screen, double, double, int)
+     */
+
+/**
+ * @class net.minecraftforge.client.event.GuiScreenEvent.MouseDragEvent
+ *
+ * Fired when the mouse was dragged while a button is being held down.
+ * See the two subclasses for listening before and after the normal handling.
+ *
+ * @see MouseDragEvent.Pre
+ * @see MouseDragEvent.Post
+ */
+
+    /**
+     * @fn public int MouseDragEvent::getMouseButton()
+     *
+     * Returns the GLFW key code of the dragged mouse button.
+     *
+     * @return The key code of the mouse button that was dragged
+     *
+     * @see GLFW#GLFW_MOUSE_BUTTON_LEFT
+     * @see GLFW#GLFW_MOUSE_BUTTON_RIGHT
+     * @see GLFW#GLFW_MOUSE_BUTTON_MIDDLE
+     * @see GLFW key constants starting with 'GLFW_MOUSE_BUTTON_'
+     * @see <a href="http://www.glfw.org/docs/latest/input.html#input_mouse_button" target="_top">the online GLFW documentation</a>
+     */
+
+    /**
+     * @fn public double MouseDragEvent::getDragX()
+     *
+     * The amount of offset between the new position against the old position of the mouse along the X (horizontal) axis.
+     *
+     * @return The amount of mouse drag along the X axis
+     */
+
+    /**
+     * @fn public double MouseDragEvent::getDragY()
+     *
+     * The amount of offset between the new position against the old position of the mouse along the Y (vertical) axis.
+     *
+     * @return The amount of mouse drag along the Y axis
+     */
+
+    /**
+     * @class net.minecraftforge.client.event.GuiScreenEvent.MouseDragEvent.Pre
+     *
+     * Fired <b>before</b> the mouse drag is handled by the screen.
+     *
+     * This event is \link Cancelable cancelable\endlink, and does not \link HasResult have a result\endlink.
+     * If the event is cancelled, the screen's mouse drag handler will be bypassed
+     * and the corresponding \ref MouseDragEvent.Post will not be fired.
+     *
+     * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+     * only on the \link LogicalSide#CLIENT logical client\endlink.
+     *
+     * @see ForgeHooksClient#onGuiMouseDragPre(Screen, double, double, int, double, double)
+     */
+
+    /**
+     * @class net.minecraftforge.client.event.GuiScreenEvent.MouseDragEvent.Post
+     *
+     * Fired <b>after</b> the mouse drag is handled, if not handled by the screen
+     * and the corresponding \ref MouseDragEvent.Pre is not cancelled.
+     *
+     * This event is \link Cancelable cancelable\endlink, and does not \link HasResult have a result\endlink.
+     * If the event is cancelled, the mouse drag will be set as handled.
+     *
+     * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+     * only on the \link LogicalSide#CLIENT logical client\endlink.
+     *
+     * @see ForgeHooksClient#onGuiMouseDragPost(Screen, double, double, int, double, double)
+     */
+
+/**
+ * @class net.minecraftforge.client.event.GuiScreenEvent.MouseScrollEvent
+ *
+ * Fired when the mouse was dragged while a button is being held down.
+ * See the two subclasses for listening before and after the normal handling.
+ *
+ * @see MouseScrollEvent.Pre
+ * @see MouseScrollEvent.Post
+ */
+
+    /**
+     * @fn public double MouseScrollEvent::getScrollDelta()
+     *
+     * Returns the amount of change or <em>delta</em> of the mouse scroll wheel.
+     *
+     * @return The delta of the mouse scroll
+     */
+
+    /**
+     * @class net.minecraftforge.client.event.GuiScreenEvent.MouseScrollEvent.Pre
+     *
+     * Fired <b>before</b> the mouse scroll is handled by the screen.
+     *
+     * This event is \link Cancelable cancelable\endlink, and does not \link HasResult have a result\endlink.
+     * If the event is cancelled, the screen's mouse scroll handler will be bypassed
+     * and the corresponding \ref MouseScrollEvent.Post will not be fired.
+     *
+     * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+     * only on the \link LogicalSide#CLIENT logical client\endlink.
+     *
+     * @see ForgeHooksClient#onGuiMouseScrollPre(MouseHelper, Screen, double)
+     */
+
+    /**
+     * @class net.minecraftforge.client.event.GuiScreenEvent.MouseScrollEvent.Post
+     *
+     * Fired <b>after</b> the mouse scroll is handled, if not handled by the screen
+     * and the corresponding \ref MouseScrollEvent.Pre is not cancelled.
+     *
+     * This event is \link Cancelable cancelable\endlink, and does not \link HasResult have a result\endlink.
+     * If the event is cancelled, the mouse scroll will be set as handled.
+     *
+     * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+     * only on the \link LogicalSide#CLIENT logical client\endlink.
+     *
+     * @see ForgeHooksClient#onGuiMouseScrollPost(MouseHelper, Screen, double)
+     */
+
+/**
+ * @class net.minecraftforge.client.event.GuiScreenEvent.KeyboardKeyEvent
+ *
+ * Fired whenever a keyboard key is pressed or released.
+ * See the various subclasses to listen for key pressing or releasing.
+ *
+ * @see GuiScreenEvent.KeyboardKeyPressedEvent
+ * @see GuiScreenEvent.KeyboardKeyReleasedEvent
+ * @see InputMappings#getInputByCode(int, int)
+ * @see <a href="https://www.glfw.org/docs/latest/input_guide.html#input_key" target="_top">the online GLFW documentation</a>
+ */
+
+    /**
+     * @fn public int KeyboardKeyEvent::getKeyCode()
+     *
+     * Returns the GLFW (platform-agnostic) key code of the keyboard key.
+     *
+     * @return The GLFW (platform-agnostic) key code
+     *
+     * @see GLFW key constants starting with 'GLFW_KEY_'
+     * @see <a href="https://www.glfw.org/docs/latest/group__keys.html" target="_top">the online GLFW documentation</a>
+     */
+
+    /**
+     * @fn public int KeyboardKeyEvent::getScanCode()
+     *
+     * Returns the platform-specific scan code of the keyboard key.
+     *
+     * The scan code is unique for every key, regardless of whether it has a key code.
+     * Scan codes are platform-specific but consistent over time, so keys will have different scan codes depending
+     * on the platform but they are safe to save to disk as custom key bindings.
+     *
+     * @return The platform-specific scan code
+     */
+
+    /**
+     * @fn public int KeyboardKeyEvent::getModifiers()
+     *
+     * Returns a bit field number representing the currently active modifier keys.
+     *
+     * @return A bit field representing the active modifier keys
+     *
+     * @see GLFW#GLFW_MOD_SHIFT SHIFT modifier key bit
+     * @see GLFW#GLFW_MOD_CONTROL CTRL modifier key bit
+     * @see GLFW#GLFW_MOD_ALT ALT modifier key bit
+     * @see GLFW#GLFW_MOD_SUPER SUPER modifier key bit
+     * @see GLFW#GLFW_KEY_CAPS_LOCK CAPS LOCK modifier key bit
+     * @see GLFW#GLFW_KEY_NUM_LOCK NUM LOCK modifier key bit
+     * @see <a href="https://www.glfw.org/docs/latest/group__mods.html" target="_top">the online GLFW documentation</a>
+     */
+
+/**
+ * @class net.minecraftforge.client.event.GuiScreenEvent.KeyboardKeyPressedEvent
+ *
+ * Fired when a keyboard key is pressed.
+ * See the two subclasses for listening before and after the normal handling.
+ *
+ * @see KeyboardKeyPressedEvent.Pre
+ * @see KeyboardKeyPressedEvent.Post
+ */
+
+    /**
+     * @class net.minecraftforge.client.event.GuiScreenEvent.KeyboardKeyPressedEvent.Pre
+     *
+     * Fired <b>before</b> the key press is handled by the screen.
+     *
+     * This event is \link Cancelable cancelable\endlink and does not \link HasResult have a result\endlink.
+     * If the event is cancelled, the screen's key press handler will be bypassed
+     * and the corresponding \ref KeyboardKeyPressedEvent.Post will not be fired.
+     *
+     * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+     * only on the \link LogicalSide#CLIENT logical client\endlink.
+     *
+     * @see ForgeHooksClient#onGuiKeyPressedPre(Screen, int, int, int)
+     */
+
+    /**
+     * @class net.minecraftforge.client.event.GuiScreenEvent.KeyboardKeyPressedEvent.Post
+     *
+     * Fired <b>after</b> the key press is handled, if not handled by the screen
+     * and the corresponding \ref KeyboardKeyPressedEvent.Pre is not cancelled.
+     *
+     * This event is \link Cancelable cancelable\endlink, and does not \link HasResult have a result\endlink.
+     * If the event is cancelled, the key press will be set as handled.
+     *
+     * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+     * only on the \link LogicalSide#CLIENT logical client\endlink.
+     *
+     * @see ForgeHooksClient#onGuiKeyPressedPost(Screen, int, int, int)
+     */
+
+/**
+ * @class net.minecraftforge.client.event.GuiScreenEvent.KeyboardKeyReleasedEvent
+ *
+ * Fired when a keyboard key is released.
+ * See the two subclasses for listening before and after the normal handling.
+ *
+ * @see KeyboardKeyReleasedEvent.Pre
+ * @see KeyboardKeyReleasedEvent.Post
+ */
+
+    /**
+     * @class net.minecraftforge.client.event.GuiScreenEvent.KeyboardKeyReleasedEvent.Pre
+     *
+     * Fired <b>before</b> the key release is handled by the screen.
+     *
+     * This event is \link Cancelable cancelable\endlink, and does not \link HasResult have a result\endlink.
+     * If the event is cancelled, the screen's key release handler will be bypassed
+     * and the corresponding \ref KeyboardKeyReleasedEvent.Post will not be fired.
+     *
+     * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+     * only on the \link LogicalSide#CLIENT logical client\endlink.
+     *
+     * @see ForgeHooksClient#onGuiKeyPressedPost(Screen, int, int, int)
+     */
+
+    /**
+     * @class net.minecraftforge.client.event.GuiScreenEvent.KeyboardKeyReleasedEvent.Post
+     *
+     * Fired <b>after</b> the key release is handled, if not handled by the screen
+     * and the corresponding \ref KeyboardKeyReleasedEvent.Pre is not cancelled.
+     *
+     * This event is \link Cancelable cancelable\endlink, and does not \link HasResult have a result\endlink.
+     * If the event is cancelled, the key release will be set as handled.
+     *
+     * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+     * only on the \link LogicalSide#CLIENT logical client\endlink.
+     *
+     * @see ForgeHooksClient#onGuiKeyReleasedPost(Screen, int, int, int)
+     */
+
+/**
+ * @class net.minecraftforge.client.event.GuiScreenEvent.KeyboardCharTypedEvent
+ *
+ * Fired when a keyboard key corresponding to a character is typed.
+ * See the two subclasses for listening before and after the normal handling.
+ *
+ * @see KeyboardCharTypedEvent.Pre
+ * @see KeyboardCharTypedEvent.Post
+ * @see <a href="https://www.glfw.org/docs/latest/input_guide.html#input_char" target="_top">the online GLFW documentation</a>
+ */
+
+    /**
+     * @fn public char KeyboardCharTypedEvent::getCodePoint()
+     *
+     * Returns the code point of the typed character, stored as a \c char type.
+     *
+     * @return The character code point typed
+     */
+
+    /**
+     * @fn public int KeyboardCharTypedEvent::getModifiers()
+     *
+     * Returns a bit field number representing the currently active modifier keys.
+     *
+     * @return A bit field representing the active modifier keys
+     *
+     * @see GLFW#GLFW_MOD_SHIFT SHIFT modifier key bit
+     * @see GLFW#GLFW_MOD_CONTROL CTRL modifier key bit
+     * @see GLFW#GLFW_MOD_ALT ALT modifier key bit
+     * @see GLFW#GLFW_MOD_SUPER SUPER modifier key bit
+     * @see <a href="https://www.glfw.org/docs/latest/group__mods.html" target="_top">the online GLFW documentation</a>
+     */
+
+    /**
+     * @class net.minecraftforge.client.event.GuiScreenEvent.KeyboardCharTypedEvent.Pre
+     *
+     * Fired <b>before</b> the character input is handled by the screen.
+     *
+     * This event is \link Cancelable cancelable\endlink, and does not \link HasResult have a result\endlink.
+     * If the event is cancelled, the screen's character input handler will be bypassed
+     * and the corresponding \ref KeyboardCharTypedEvent.Post will not be fired.
+     *
+     * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+     * only on the \link LogicalSide#CLIENT logical client\endlink.
+     *
+     * @see ForgeHooksClient#onGuiCharTypedPre(Screen, char, int)
+     */
+
+    /**
+     * @class net.minecraftforge.client.event.GuiScreenEvent.KeyboardCharTypedEvent.Post
+     *
+     * Fired <b>after</b> the character input is handled, if not handled by the screen
+     * and the corresponding \ref KeyboardCharTypedEvent.Pre is not cancelled.
+     *
+     * This event is \link Cancelable cancelable\endlink, and does not \link HasResult have a result\endlink.
+     * If the event is cancelled, the character input will be set as handled.
+     *
+     * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+     * only on the \link LogicalSide#CLIENT logical client\endlink.
+     *
+     * @see ForgeHooksClient#onGuiCharTypedPost(Screen, char, int)
+     */

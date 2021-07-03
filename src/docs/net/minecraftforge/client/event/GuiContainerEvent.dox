@@ -1,0 +1,95 @@
+/**
+ * @class net.minecraftforge.client.event.GuiContainerEvent
+ *
+ * Fired for hooking into \ref ContainerScreen rendering.
+ * See the two subclasses to listen for foreground or background rendering.
+ *
+ * These events are fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+ * only on the \link LogicalSide#CLIENT logical client\endlink.
+ *
+ * @see GuiContainerEvent.DrawForeground
+ * @see GuiContainerEvent.DrawBackground
+ */
+
+/**
+ * @fn public ContainerScreen<?> GuiContainerEvent::getGuiContainer()
+ *
+ * Returns the \ref ContainerScreen of this event.
+ *
+ * @return The container's screen
+ */
+
+/**
+ * @class net.minecraftforge.client.event.GuiContainerEvent.DrawForeground
+ *
+ * Fired <em>after</em> the container screen's <b>foreground</b> layer and elements are drawn, but
+ * before rendering the tooltips and the item stack being dragged by the player.
+ *
+ * This can be used for rendering elements that must be above other screen elements, but
+ * below tooltips and the dragged stack, such as slot or item stack specific overlays.
+ *
+ * This event is not \link Cancelable cancelable\endlink, and does not \link HasResult have a result\endlink
+ *
+ * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+ * only on the \link LogicalSide#CLIENT logical client\endlink.
+ */
+
+    /**
+     * @fn public MatrixStack DrawForeground::getMatrixStack()
+     *
+     * Returns the \ref MatrixStack used for transformations, rotations, and scaling in rendering.
+     *
+     * @return The matrix stack used for rendering
+     */
+
+    /**
+     * @fn public int DrawForeground::getMouseX()
+     *
+     * Returns the X coordinate of the mouse pointer, relative to the \link MainWindow main window\endlink of the game.
+     *
+     * @return The X coordinate of the mouse pointer
+     */
+
+    /**
+     * @fn public int DrawForeground::getMouseY()
+     *
+     * Returns the Y coordinate of the mouse pointer, relative to the \link MainWindow main window\endlink of the game.
+     *
+     * @return The Y coordinate of the mouse pointer
+     */
+
+/**
+ * @class net.minecraftforge.client.event.GuiContainerEvent.DrawBackground
+ *
+ * Fired <em>after</em> the container screen's <b>background</b> layer and elements are drawn.
+ * This can be used for rendering new background elements.
+ *
+ * This event is not \link Cancelable cancelable\endlink, and does not \link HasResult have a result\endlink.
+ *
+ * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+ * only on the \link LogicalSide#CLIENT logical client\endlink.
+ */
+
+    /**
+     * @fn public MatrixStack DrawBackground::getMatrixStack()
+     *
+     * Returns the \ref MatrixStack used for transformations, rotations, and scaling in rendering.
+     *
+     * @return The matrix stack used for rendering
+     */
+
+    /**
+     * @fn public int DrawBackground::getMouseX()
+     *
+     * Returns the X coordinate of the mouse pointer, relative to the \link MainWindow main window\endlink of the game.
+     *
+     * @return The X coordinate of the mouse pointer
+     */
+
+    /**
+     * @fn public int DrawBackground::getMouseY()
+     *
+     * Returns the Y coordinate of the mouse pointer, relative to the \link MainWindow main window\endlink of the game.
+     *
+     * @return The Y coordinate of the mouse pointer
+     */

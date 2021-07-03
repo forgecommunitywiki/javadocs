@@ -1,0 +1,50 @@
+/**
+ * @class net.minecraftforge.client.event.ClientChatReceivedEvent
+ *
+ * Fired when the client is about to send a chat message or command to the server.
+ * This can be used to implement client-only commands as chat messages, or intercepting messages for typos.
+ *
+ * This event is \link Cancelable cancellable\endlink, and does not \link HasResult have a result\endlink.
+ * If the event is cancelled, the chat message or command will not be sent to the server.
+ *
+ * This event is fired on the \link MinecraftForge::EVENT_BUS main Forge event bus\endlink,
+ * only on the \link LogicalSide#CLIENT logical client\endlink.
+ *
+ * @see ChatType
+ * @see ForgeEventFactory#onClientChat(ChatType, ITextComponent, UUID)
+ */
+
+/**
+ * @fn public ITextComponent ClientChatReceivedEvent::getMessage()
+ *
+ * Returns the message that will be displayed in the chat message window, if the event is not cancelled.
+ * If the message is blank, then no message will be displayed.
+ *
+ * @return The message that will be displayed in the chat message window
+ */
+
+/**
+ * @fn public void ClientChatReceivedEvent::setMessage(ITextComponent message)
+ *
+ * Sets the new message to be displayed in the chat message window, if the event is not cancelled.
+ *
+ * If \p message is \c null, then no message will be displayed.
+ *
+ * @param message The new message to be displayed, can be \c null
+ */
+
+/**
+ * @fn public ChatType ClientChatReceivedEvent::getType()
+ *
+ * Returns the type of the message, as defined by \link ChatType\endlink.
+ *
+ * @return The type of the message
+ */
+
+/**
+ * @fn public UUID ClientChatReceivedEvent::getSenderUUID()
+ *
+ * Returns the UUID of the sender of the message, or \c null if one is not specified.
+ *
+ * @return The UUID of the message's sender, or \c null
+ */

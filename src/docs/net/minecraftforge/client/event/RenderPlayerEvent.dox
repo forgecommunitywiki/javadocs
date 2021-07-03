@@ -1,0 +1,81 @@
+/**
+ * @class net.minecraftforge.client.event.RenderPlayerEvent
+ *
+ * Fired when a player is being rendered.
+ * See the two subclasses for listening for before and after rendering.
+ *
+ * @see RenderPlayerEvent.Pre
+ * @see RenderPlayerEvent.Post
+ * @see PlayerRenderer
+ */
+
+/**
+ * @fn public PlayerRenderer RenderPlayerEvent::getRenderer()
+ *
+ * Returns the \ref PlayerRenderer for the player entity.
+ *
+ * @return The renderer for the player entity
+ */
+
+/**
+ * @fn public float RenderPlayerEvent::getPartialRenderTick()
+ *
+ * Returns the partial amount of ticks between the last and next render tick.
+ * This will be in the range of <tt>0.0-1.0</tt>.
+ *
+ * @return The amount of partial ticks
+ */
+
+/**
+ * @fn public MatrixStack RenderPlayerEvent::getMatrixStack()
+ *
+ * Returns the \ref MatrixStack used for transformations, rotations, and scaling in rendering.
+ *
+ * @return The matrix stack used for rendering
+ */
+
+/**
+ * @fn public IRenderTypeBuffer RenderPlayerEvent::getBuffers()
+ *
+ * Returns the \ref IRenderTypeBuffer currently being used for rendering.
+ *
+ * @return The rendering buffers
+ */
+
+/**
+ * @fn public int RenderPlayerEvent::getLight()
+ *
+ * Returns an integer packed with the sky and block light.
+ * This is used in rendering to determine the color of the light level of the block, according to the light texture.
+ *
+ * @return The amount of packed light for rendering
+ * @see LightTexture
+ * @see LightTexture#packLight(int, int)
+ * @see LightTexture#getLightBlock(int)
+ * @see LightTexture#getLightSky(int)
+ */
+
+/**
+ * @class net.minecraftforge.client.event.RenderPlayerEvent.Pre
+ *
+ * Fired <b>before</b> the player is rendered.
+ * This can be used for rendering additional effects or suppressing rendering.
+ *
+ * This event is \link Cancelable cancellable\endlink, and does not \link HasResult have a result\endlink.
+ * If this event is cancelled, then the player will not be rendered and the corresponding
+ * \ref RenderPlayerEvent.Post will not be fired.
+ *
+ * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+ * only on the \link LogicalSide#CLIENT logical client\endlink.
+ */
+
+/**
+ * @class net.minecraftforge.client.event.RenderPlayerEvent.Post
+ *
+ * Fired <b>after</b> the player is rendered, if the corresponding \ref RenderPlayerEvent.Pre is not cancelled.
+ *
+ * This event is not \link Cancelable cancellable\endlink, and does not \link HasResult have a result\endlink.
+ *
+ * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+ * only on the \link LogicalSide#CLIENT logical client\endlink.
+ */

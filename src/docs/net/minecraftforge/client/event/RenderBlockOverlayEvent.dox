@@ -1,0 +1,71 @@
+/**
+ * @class net.minecraftforge.client.event.RenderBlockOverlayEvent
+ *
+ * Fired before a block texture will be overlaid on the player's view.
+ *
+ * This event is \link Cancelable cancellable\endlink, and does not \link HasResult have a result\endlink.
+ * If this event is cancelled, then the overlay will not be rendered.
+ *
+ * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+ * only on the \link LogicalSide#CLIENT logical client\endlink.
+ *
+ * @see ForgeEventFactory#renderBlockOverlay(PlayerEntity, MatrixStack, OverlayType, BlockState, BlockPos)
+ */
+
+/**
+ * @class net.minecraftforge.client.event.RenderBlockOverlayEvent.OverlayType
+ *
+ * Defines the different overlays that may be rendered.
+ *
+ * @see RenderBlockOverlayEvent
+ */
+
+    /**
+     * @var OverlayType::FIRE
+     *
+     * The type of the overlay when the player is burning / on fire.
+     */
+
+    /**
+     * @var OverlayType::BLOCK
+     *
+     * The type of overlay when the player is suffocating inside a solid block.
+     */
+
+    /**
+     * @var OverlayType::WATER
+     *
+     * The type of overlay when the player is underwater.
+     */
+
+/**
+ * @fn public PlayerEntity RenderBlockOverlayEvent::getPlayer()
+ *
+ * @return The player which the overlay will apply to
+ */
+
+/**
+ * @fn public MatrixStack RenderBlockOverlayEvent::getMatrixStack()
+ *
+ * Returns the \ref MatrixStack used for transformations, rotations, and scaling in rendering.
+ *
+ * @return The matrix stack used for rendering
+ */
+
+/**
+ * @fn public OverlayType RenderBlockOverlayEvent::getOverlayType()
+ *
+ * @return The type of the overlay
+ */
+
+/**
+ * @fn public BlockState RenderBlockOverlayEvent::getBlockForOverlay()
+ *
+ * @return The block from which the overlay is gotten from
+ */
+
+/**
+ * @fn public BlockPos RenderBlockOverlayEvent::getBlockPos()
+ *
+ * @return The position of the block from which the overlay is gotten from
+ */

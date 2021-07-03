@@ -1,0 +1,87 @@
+/**
+ * @class net.minecraftforge.client.event.RenderNameplateEvent
+ *
+ * Fired before an entity renderer renders the nameplate of an entity.
+ *
+ * This event is not \link Cancelable cancellable\endlink, and  \link HasResult has a result\endlink.
+ * <ul>
+ *     <li><tt>ALLOW</tt> - The nameplate will be forcibly rendered.</li>
+ *     <li><tt>DEFAULT</tt> - The vanilla logic will be used.</li>
+ *     <li><tt>DENY</tt> - The nameplate will not be rendered.</li>
+ * </ul>
+ *
+ * This event is fired on the \link MinecraftForge#EVENT_BUS main Forge event bus\endlink,
+ * only on the \link LogicalSide#CLIENT logical client\endlink.
+ *
+ * @see EntityRenderer#render(T, float, float, MatrixStack, IRenderTypeBuffer, int)
+ */
+
+/**
+ * @fn public void RenderNameplateEvent::setContent(ITextComponent contents)
+ *
+ * Sets the new text to be rendered on the nameplate.
+ *
+ * @param contents The new nameplate text
+ */
+
+/**
+ * @fn public ITextComponent RenderNameplateEvent::getContent()
+ *
+ * Returns the text to be rendered on the nameplate, if the event is not \link Result#DENY DENIED\endlink.
+ *
+ * @return The text of the nameplate
+ */
+
+/**
+ * @fn public ITextComponent RenderNameplateEvent::getOriginalContent()
+ *
+ * Returns the original text of the nameplate, before any modifications by this event.
+ *
+ * @return The original text of the nameplate
+ */
+
+/**
+ * @fn public EntityRenderer<?> RenderNameplateEvent::getEntityRenderer()
+ *
+ * Returns the \ref EntityRenderer for the entity that this nameplate is being rendered for.
+ *
+ * @return The entity renderer rendering the nameplate
+ */
+
+/**
+ * @fn public MatrixStack RenderNameplateEvent::getMatrixStack()
+ *
+ * Returns the \ref MatrixStack used for transformations, rotations, and scaling in rendering.
+ *
+ * @return The matrix stack used for rendering
+ */
+
+/**
+ * @fn public IRenderTypeBuffer RenderNameplateEvent::getRenderTypeBuffer()
+ *
+ * Returns the \ref IRenderTypeBuffer currently being used for rendering.
+ *
+ * @return The rendering buffers
+ */
+
+/**
+ * @fn public int RenderNameplateEvent::getPackedLight()
+ *
+ * Returns an integer packed with the sky and block light.
+ * This is used in rendering to determine the color of the light level of the block, according to the light texture.
+ *
+ * @return The amount of packed light for rendering
+ * @see LightTexture
+ * @see LightTexture#packLight(int, int)
+ * @see LightTexture#getLightBlock(int)
+ * @see LightTexture#getLightSky(int)
+ */
+
+/**
+ * @fn public float RenderNameplateEvent::getPartialTicks()
+ *
+ * Returns the partial amount of ticks between the last and next render tick.
+ * This will be in the range of <tt>0.0-1.0</tt>.
+ *
+ * @return The amount of partial ticks
+ */
